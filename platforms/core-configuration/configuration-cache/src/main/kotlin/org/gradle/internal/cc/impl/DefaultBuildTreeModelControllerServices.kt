@@ -79,6 +79,7 @@ class DefaultBuildTreeModelControllerServices : BuildTreeModelControllerServices
         val configurationCacheForModels = InternalFlag("org.gradle.configuration-cache.internal.tooling-models", false)
     }
 
+    @Suppress("CyclomaticComplexMethod")
     override fun servicesForBuildTree(requirements: BuildActionModelRequirements): BuildTreeModelControllerServices.Supplier {
         val startParameter = requirements.startParameter
 
