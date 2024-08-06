@@ -16,7 +16,10 @@
 
 package org.gradle.tooling.internal.provider.runner;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import org.gradle.api.NonNullApi;
 import org.gradle.api.problems.ProblemGroup;
 import org.gradle.api.problems.ProblemId;
@@ -85,6 +88,9 @@ public class ProblemsProgressEventConsumer extends ClientForwardingBuildOperatio
     private final Supplier<OperationIdentifier> operationIdentifierSupplier;
     private final AggregatingProblemConsumer aggregator;
 
+    // TODO (donat) We already cache a subset of problems in AggregatingProblemConsumer; we should look into how to avoid this duplication
+    private final Multimap<Throwable, Problem> problemsForThrowables = Multimaps.synchronizedMultimap(HashMultimap.<Throwable, Problem>create());
+
     ProblemsProgressEventConsumer(ProgressEventConsumer progressEventConsumer, Supplier<OperationIdentifier> operationIdentifierSupplier, AggregatingProblemConsumer aggregator) {
         super(progressEventConsumer);
         this.operationIdentifierSupplier = operationIdentifierSupplier;
@@ -98,9 +104,17 @@ public class ProblemsProgressEventConsumer extends ClientForwardingBuildOperatio
             .ifPresent(aggregator::emit);
     }
 
+    public Multimap<Throwable, Problem> getProblemsForThrowable() {
+        return problemsForThrowables;
+    }
+
     private Optional<InternalProblemEventVersion2> createProblemEvent(OperationIdentifier buildOperationId, @Nullable Object details) {
         if (details instanceof DefaultProblemProgressDetails) {
             Problem problem = ((DefaultProblemProgressDetails) details).getProblem();
+            Throwable exception = problem.getException();
+            if (exception != null) {
+                problemsForThrowables.put(exception, problem);
+            }
             return Optional.of(createProblemEvent(buildOperationId, problem));
         }
         return empty();
@@ -109,15 +123,7 @@ public class ProblemsProgressEventConsumer extends ClientForwardingBuildOperatio
     private InternalProblemEventVersion2 createProblemEvent(OperationIdentifier buildOperationId, Problem problem) {
         return new DefaultProblemEvent(
             createDefaultProblemDescriptor(buildOperationId),
-            new DefaultProblemDetails(
-                toInternalDefinition(problem.getDefinition()),
-                toInternalDetails(problem.getDetails()),
-                toInternalContextualLabel(problem.getContextualLabel()),
-                toInternalLocations(problem.getLocations()),
-                toInternalSolutions(problem.getSolutions()),
-                toInternalAdditionalData(problem.getAdditionalData()),
-                toInternalFailure(problem.getException())
-            )
+            createDefaultProblemDetails(problem)
         );
     }
 
@@ -133,6 +139,18 @@ public class ProblemsProgressEventConsumer extends ClientForwardingBuildOperatio
         return new DefaultProblemDescriptor(
             operationIdentifierSupplier.get(),
             parentBuildOperationId);
+    }
+
+    static DefaultProblemDetails createDefaultProblemDetails(Problem problem) {
+        return new DefaultProblemDetails(
+            toInternalDefinition(problem.getDefinition()),
+            toInternalDetails(problem.getDetails()),
+            toInternalContextualLabel(problem.getContextualLabel()),
+            toInternalLocations(problem.getLocations()),
+            toInternalSolutions(problem.getSolutions()),
+            toInternalAdditionalData(problem.getAdditionalData()),
+            toInternalFailure(problem.getException())
+        );
     }
 
     private static InternalProblemDefinition toInternalDefinition(ProblemDefinition definition) {
