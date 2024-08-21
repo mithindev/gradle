@@ -17,6 +17,7 @@
 package org.gradle.tooling.internal.provider.runner;
 
 import org.gradle.api.problems.internal.Problem;
+import org.gradle.api.problems.internal.ProblemAwareFailure;
 import org.gradle.internal.build.event.BuildEventSubscriptions;
 import org.gradle.internal.build.event.types.AbstractOperationResult;
 import org.gradle.internal.build.event.types.DefaultBuildBuildDescriptor;
@@ -25,6 +26,7 @@ import org.gradle.internal.build.event.types.DefaultFailureWithProblemResult;
 import org.gradle.internal.build.event.types.DefaultOperationFinishedProgressEvent;
 import org.gradle.internal.build.event.types.DefaultOperationStartedProgressEvent;
 import org.gradle.internal.build.event.types.DefaultSuccessResult;
+import org.gradle.internal.exceptions.MultiCauseException;
 import org.gradle.internal.operations.BuildOperationDescriptor;
 import org.gradle.internal.operations.OperationFinishEvent;
 import org.gradle.internal.operations.OperationIdentifier;
@@ -80,10 +82,36 @@ class RunBuildBuildOperationMapper implements BuildOperationMapper<RunBuildBuild
         long startTime = result.getStartTime();
         long endTime = result.getEndTime();
         if (failure != null) {
-            List<Problem> problems = new ArrayList<>(problemConsumer.getProblemsForThrowable().values());
+            List<Problem> problems = new ArrayList<>();
+            List<Throwable> failureCauses = flatten(failure);
+            for (Throwable t : failureCauses) {
+                problems.addAll(problemConsumer.getProblemsForThrowable().get(t));
+                if (t instanceof ProblemAwareFailure) {
+                    problems.addAll(((ProblemAwareFailure) t).getProblems());
+                }
+            }
             List<InternalBasicProblemDetailsVersion3> protocolProblems = problems.stream().map(ProblemsProgressEventConsumer::createDefaultProblemDetails).collect(Collectors.toList());
             return new DefaultFailureWithProblemResult(startTime, endTime, Collections.singletonList(DefaultFailure.fromThrowable(failure)), protocolProblems);
         }
         return new DefaultSuccessResult(startTime, endTime);
+    }
+
+    private static List<Throwable> flatten(Throwable throwable) {
+        List<Throwable> result = new ArrayList<>();
+        flatten(throwable, result);
+        return result;
+    }
+
+    private static void flatten(Throwable throwable, List<Throwable> result) {
+        if (throwable != null) {
+            result.add(throwable);
+            if (throwable instanceof MultiCauseException) {
+                for (Throwable cause : ((MultiCauseException) throwable).getCauses()) {
+                    flatten(cause, result);
+                }
+            } else {
+                flatten(throwable.getCause(), result);
+            }
+        }
     }
 }

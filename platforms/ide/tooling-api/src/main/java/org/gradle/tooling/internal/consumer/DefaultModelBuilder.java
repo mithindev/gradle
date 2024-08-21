@@ -15,9 +15,11 @@
  */
 package org.gradle.tooling.internal.consumer;
 
+import org.gradle.tooling.Failure;
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ResultHandler;
+import org.gradle.tooling.events.problems.ProblemReport;
 import org.gradle.tooling.internal.consumer.async.AsyncConsumerActionExecutor;
 import org.gradle.tooling.internal.consumer.connection.ConsumerAction;
 import org.gradle.tooling.internal.consumer.connection.ConsumerConnection;
@@ -25,6 +27,7 @@ import org.gradle.tooling.internal.consumer.parameters.ConsumerOperationParamete
 import org.gradle.tooling.model.UnsupportedMethodException;
 import org.gradle.tooling.model.internal.Exceptions;
 
+import java.util.Collections;
 import java.util.List;
 
 public class DefaultModelBuilder<T> extends AbstractLongRunningOperation<DefaultModelBuilder<T>> implements ModelBuilder<T> {
@@ -92,6 +95,22 @@ public class DefaultModelBuilder<T> extends AbstractLongRunningOperation<Default
                         message += "\n" + Exceptions.INCOMPATIBLE_VERSION_HINT;
                     }
                     return message;
+                }
+
+                @Override
+                public List<? extends Failure> getFailures() {
+                    if (buildFailedProgressListener != null && buildFailedProgressListener.failures !=null) {
+                        return buildFailedProgressListener.failures;
+                    }
+                    return Collections.emptyList();
+                }
+
+                @Override
+                public List<? extends ProblemReport> getProblems() {
+                    if (buildFailedProgressListener != null && buildFailedProgressListener.problems !=null) {
+                        return buildFailedProgressListener.problems;
+                    }
+                    return Collections.emptyList();
                 }
             }));
         }

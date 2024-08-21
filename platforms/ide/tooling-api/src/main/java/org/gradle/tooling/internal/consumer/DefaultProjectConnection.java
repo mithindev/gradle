@@ -18,10 +18,12 @@ package org.gradle.tooling.internal.consumer;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionExecuter;
 import org.gradle.tooling.BuildLauncher;
+import org.gradle.tooling.Failure;
 import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.ResultHandler;
 import org.gradle.tooling.TestLauncher;
+import org.gradle.tooling.events.problems.ProblemReport;
 import org.gradle.tooling.internal.consumer.async.AsyncConsumerActionExecutor;
 import org.gradle.tooling.internal.consumer.connection.ConsumerAction;
 import org.gradle.tooling.internal.consumer.connection.ConsumerConnection;
@@ -29,6 +31,7 @@ import org.gradle.tooling.internal.consumer.parameters.ConsumerOperationParamete
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 class DefaultProjectConnection implements ProjectConnection {
@@ -121,6 +124,16 @@ class DefaultProjectConnection implements ProjectConnection {
                     @Override
                     public String getConnectionFailureMessage(Throwable throwable) {
                         return String.format("Could not notify daemons about changed paths: %s.", connection.getDisplayName());
+                    }
+
+                    @Override
+                    public List<? extends Failure> getFailures() {
+                        return Collections.emptyList();
+                    }
+
+                    @Override
+                    public List<? extends ProblemReport> getProblems() {
+                        return Collections.emptyList();
                     }
                 })
             ));

@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -166,10 +167,22 @@ public abstract class AbstractLongRunningOperation<T extends AbstractLongRunning
         return addProgressListener(listener, ImmutableSet.copyOf(operationTypes));
     }
 
+    // if the client subscribes to problem events, we also
+    public BuildFailedProgressListener buildFailedProgressListener = null;
+    private Set<OperationType> optTypes = new HashSet<>();
+
     @Override
     public T addProgressListener(org.gradle.tooling.events.ProgressListener listener, Set<OperationType> eventTypes) {
+        optTypes.addAll(eventTypes);
+        maybeAddProblemListener(operationParamsBuilder, eventTypes);
         operationParamsBuilder.addProgressListener(listener, eventTypes);
         return getThis();
+    }
+
+    private void maybeAddProblemListener(ConsumerOperationParameters.Builder operationParamsBuilder, Set<OperationType> eventTypes) {
+        if (buildFailedProgressListener == null && eventTypes.contains(OperationType.GENERIC) && eventTypes.contains(OperationType.PROBLEMS))  {
+            operationParamsBuilder.addProgressListener(buildFailedProgressListener = new BuildFailedProgressListener(), EnumSet.of(OperationType.GENERIC, OperationType.PROBLEMS));
+        }
     }
 
     @Override

@@ -15,13 +15,36 @@
  */
 package org.gradle.tooling;
 
+import org.gradle.tooling.events.problems.ProblemReport;
+
+import java.util.List;
+
 /**
  * Thrown when a Gradle build fails or when a model cannot be built.
  *
  * @since 1.0-milestone-3
  */
 public class BuildException extends GradleConnectionException {
+    private final List<? extends Failure> failures;
+    private final List<? extends ProblemReport> problems;
+
     public BuildException(String message, Throwable throwable) {
         super(message, throwable);
+        failures = null;
+        problems = null;
+    }
+
+    public BuildException(String message, Throwable throwable, List<? extends Failure> failures, List<? extends ProblemReport> problems) {
+        super(message, throwable);
+        this.failures = failures;
+        this.problems = problems;
+    }
+
+    public List<? extends Failure> getFailures() {
+        return failures;
+    }
+
+    public List<? extends ProblemReport> getProblems() {
+        return problems;
     }
 }

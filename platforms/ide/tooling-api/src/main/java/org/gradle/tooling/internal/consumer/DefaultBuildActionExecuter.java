@@ -19,10 +19,12 @@ package org.gradle.tooling.internal.consumer;
 import org.gradle.internal.Cast;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionExecuter;
+import org.gradle.tooling.Failure;
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.IntermediateResultHandler;
 import org.gradle.tooling.ResultHandler;
 import org.gradle.tooling.StreamedValueListener;
+import org.gradle.tooling.events.problems.ProblemReport;
 import org.gradle.tooling.internal.consumer.async.AsyncConsumerActionExecutor;
 import org.gradle.tooling.internal.consumer.connection.ConsumerAction;
 import org.gradle.tooling.internal.consumer.connection.ConsumerConnection;
@@ -31,6 +33,8 @@ import org.gradle.util.internal.CollectionUtils;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 class DefaultBuildActionExecuter<T> extends AbstractLongRunningOperation<DefaultBuildActionExecuter<T>> implements BuildActionExecuter<T> {
     private final BuildAction<T> buildAction;
@@ -90,6 +94,22 @@ class DefaultBuildActionExecuter<T> extends AbstractLongRunningOperation<Default
             @Override
             public String getConnectionFailureMessage(Throwable throwable) {
                 return String.format("Could not run build action using %s.", connection.getDisplayName());
+            }
+
+            @Override
+            public List<? extends Failure> getFailures() {
+                if (buildFailedProgressListener != null && buildFailedProgressListener.failures !=null) {
+                    return buildFailedProgressListener.failures;
+                }
+                return Collections.emptyList();
+            }
+
+            @Override
+            public List<? extends ProblemReport> getProblems() {
+                if (buildFailedProgressListener != null && buildFailedProgressListener.problems !=null) {
+                    return buildFailedProgressListener.problems;
+                }
+                return Collections.emptyList();
             }
         })));
     }
