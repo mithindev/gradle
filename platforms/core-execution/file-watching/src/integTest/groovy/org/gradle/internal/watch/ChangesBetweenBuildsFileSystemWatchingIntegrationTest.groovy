@@ -60,7 +60,7 @@ class ChangesBetweenBuildsFileSystemWatchingIntegrationTest extends AbstractFile
         """
 
         when:
-        runWithWatchingEnabled "hello"
+        runWithWatchingEnabled "hello", "--stacktrace"
         then:
         outputContains "Hello from original task!"
 
