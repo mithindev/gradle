@@ -19,6 +19,7 @@ package org.gradle.tooling.internal.consumer;
 import org.gradle.internal.event.ListenerNotificationException;
 import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.BuildException;
+import org.gradle.tooling.Failure;
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.ListenerFailedException;
 import org.gradle.tooling.TestExecutionException;
@@ -31,6 +32,7 @@ import org.gradle.tooling.internal.protocol.exceptions.InternalUnsupportedBuildA
 import org.gradle.tooling.internal.protocol.test.InternalTestExecutionException;
 
 import java.util.List;
+import java.util.Map;
 
 public class FailureAwareConnectionExceptionTransformer extends ConnectionExceptionTransformer {
 
@@ -44,7 +46,7 @@ public class FailureAwareConnectionExceptionTransformer extends ConnectionExcept
     @Override
     public GradleConnectionException transform(Throwable failure) {
         BuildFailedProgressListener buildFailedListener = longRunningOperation.buildFailedProgressListener;
-        List<ProblemReport> problems = buildFailedListener == null ? null : buildFailedListener.problems;
+        Map<Failure, List<ProblemReport>> problems = buildFailedListener == null ? null : buildFailedListener.problems;
 
         if (failure instanceof InternalUnsupportedBuildArgumentException) {
             return new UnsupportedBuildArgumentException(connectionFailureMessage(failure)

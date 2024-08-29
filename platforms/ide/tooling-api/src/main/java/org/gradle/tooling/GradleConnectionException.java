@@ -15,11 +15,12 @@
  */
 package org.gradle.tooling;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.gradle.tooling.events.problems.ProblemReport;
 
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Thrown when there is some problem using a Gradle connection.
@@ -27,24 +28,24 @@ import java.util.Collections;
  * @since 1.0-milestone-3
  */
 public class GradleConnectionException extends RuntimeException {
-    private final Collection<ProblemReport> problemReports;
+    private final Map<Failure, List<ProblemReport>> problemReports;
 
     public GradleConnectionException(String message) {
         super(message);
-        this.problemReports = Collections.emptyList();
+        this.problemReports = Collections.emptyMap();
     }
 
     public GradleConnectionException(String message, Throwable throwable) {
         super(message, throwable);
-        this.problemReports = Collections.emptyList();
+        this.problemReports = Collections.emptyMap();
     }
 
-    public GradleConnectionException(String message, Throwable throwable, Collection<ProblemReport> problems) {
+    public GradleConnectionException(String message, Throwable throwable, Map<Failure, List<ProblemReport>> problems) {
         super(message, throwable);
-        this.problemReports = ImmutableList.copyOf(problems);
+        this.problemReports = ImmutableMap.copyOf(problems);
     }
 
-    public Collection<ProblemReport> getProblemReports() {
+    public Map<Failure, List<ProblemReport>> getProblemReports() {
         return problemReports;
     }
 }

@@ -17,8 +17,10 @@
 package org.gradle.tooling.internal.protocol.events;
 
 import org.gradle.tooling.internal.protocol.InternalBasicProblemDetailsVersion3;
+import org.gradle.tooling.internal.protocol.InternalFailure;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * DO NOT CHANGE THIS INTERFACE. It is part of the cross-version protocol.
@@ -32,5 +34,5 @@ public interface InternalFailureWithProblemsResult extends InternalOperationResu
      * @return problems
      * @since 8.11
      */
-    List<InternalBasicProblemDetailsVersion3> getProblems();
+    Map<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> getProblems();
 }

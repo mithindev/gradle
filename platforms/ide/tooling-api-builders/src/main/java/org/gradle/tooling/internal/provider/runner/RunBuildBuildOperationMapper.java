@@ -16,6 +16,8 @@
 
 package org.gradle.tooling.internal.provider.runner;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import org.gradle.api.problems.internal.Problem;
 import org.gradle.api.problems.internal.ProblemAwareFailure;
 import org.gradle.internal.build.event.BuildEventSubscriptions;
@@ -25,8 +27,8 @@ import org.gradle.internal.build.event.types.DefaultFailure;
 import org.gradle.internal.build.event.types.DefaultFailureWithProblemResult;
 import org.gradle.internal.build.event.types.DefaultOperationFinishedProgressEvent;
 import org.gradle.internal.build.event.types.DefaultOperationStartedProgressEvent;
+import org.gradle.internal.build.event.types.DefaultProblemDetails;
 import org.gradle.internal.build.event.types.DefaultSuccessResult;
-import org.gradle.internal.exceptions.MultiCauseException;
 import org.gradle.internal.operations.BuildOperationDescriptor;
 import org.gradle.internal.operations.OperationFinishEvent;
 import org.gradle.internal.operations.OperationIdentifier;
@@ -34,11 +36,12 @@ import org.gradle.internal.operations.OperationStartEvent;
 import org.gradle.launcher.exec.RunBuildBuildOperationType;
 import org.gradle.tooling.events.OperationType;
 import org.gradle.tooling.internal.protocol.InternalBasicProblemDetailsVersion3;
+import org.gradle.tooling.internal.protocol.InternalFailure;
 import org.gradle.tooling.internal.protocol.events.InternalOperationFinishedProgressEvent;
 import org.gradle.tooling.internal.protocol.events.InternalOperationStartedProgressEvent;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -82,37 +85,20 @@ class RunBuildBuildOperationMapper implements BuildOperationMapper<RunBuildBuild
         long startTime = result.getStartTime();
         long endTime = result.getEndTime();
         if (failure != null) {
-            List<Problem> problems = new ArrayList<>();
-            List<Throwable> failureCauses = flatten(failure);
-            for (Throwable t : failureCauses) {
-                problems.addAll(problemConsumer.getProblemsForThrowable().get(t));
-                if (t instanceof ProblemAwareFailure) {
-                    problems.addAll(((ProblemAwareFailure) t).getProblems());
+            Multimap<InternalFailure, InternalBasicProblemDetailsVersion3> problems = ArrayListMultimap.create();
+            InternalFailure rootFailure = DefaultFailure.fromThrowable(failure, (throwable, internalFailure) -> {
+                problems.putAll(internalFailure, toProblemDetails(problemConsumer.getProblemsForThrowable().get(throwable)));
+                if (throwable instanceof ProblemAwareFailure) {
+                    List<DefaultProblemDetails> details = toProblemDetails(((ProblemAwareFailure) throwable).getProblems());
+                    problems.putAll(internalFailure, details);
                 }
-            }
-            List<InternalBasicProblemDetailsVersion3> protocolProblems = problems.stream().map(ProblemsProgressEventConsumer::createDefaultProblemDetails).collect(Collectors.toList());
-            // TODO (donat) should send a DefaultFailure -> Collection<Problem> mapping
-            return new DefaultFailureWithProblemResult(startTime, endTime, Collections.singletonList(DefaultFailure.fromThrowable(failure)), protocolProblems);
+            });
+            return new DefaultFailureWithProblemResult(startTime, endTime, Collections.singletonList(rootFailure), problems.asMap());
         }
         return new DefaultSuccessResult(startTime, endTime);
     }
 
-    private static List<Throwable> flatten(Throwable throwable) {
-        List<Throwable> result = new ArrayList<>();
-        flatten(throwable, result);
-        return result;
-    }
-
-    private static void flatten(Throwable throwable, List<Throwable> result) {
-        if (throwable != null) {
-            result.add(throwable);
-            if (throwable instanceof MultiCauseException) {
-                for (Throwable cause : ((MultiCauseException) throwable).getCauses()) {
-                    flatten(cause, result);
-                }
-            } else {
-                flatten(throwable.getCause(), result);
-            }
-        }
+    private static List<DefaultProblemDetails> toProblemDetails(Collection<Problem> p) {
+        return p.stream().map(ProblemsProgressEventConsumer::createDefaultProblemDetails).collect(Collectors.toList());
     }
 }

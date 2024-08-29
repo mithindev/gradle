@@ -54,7 +54,6 @@ import org.gradle.tooling.events.internal.DefaultBinaryPluginIdentifier;
 import org.gradle.tooling.events.internal.DefaultFinishEvent;
 import org.gradle.tooling.events.internal.DefaultOperationDescriptor;
 import org.gradle.tooling.events.internal.DefaultOperationFailureResult;
-import org.gradle.tooling.events.internal.DefaultOperationFailureResultWithProblems;
 import org.gradle.tooling.events.internal.DefaultOperationSuccessResult;
 import org.gradle.tooling.events.internal.DefaultScriptPluginIdentifier;
 import org.gradle.tooling.events.internal.DefaultStartEvent;
@@ -236,6 +235,7 @@ import org.gradle.tooling.internal.protocol.problem.InternalTaskPathLocation;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -1088,13 +1088,20 @@ public class BuildProgressListenerAdapter implements InternalBuildProgressListen
         if (result instanceof InternalSuccessResult) {
             return new DefaultOperationSuccessResult(result.getStartTime(), result.getEndTime());
         } else if (result instanceof InternalFailureWithProblemsResult) {
-            List<InternalBasicProblemDetailsVersion3> problems = ((InternalFailureWithProblemsResult) result).getProblems();
             // TODO (donat) MUST CONVERT to internalproblems
-            List<ProblemReport> problemReports = new ArrayList<>(problems.size());
-            for (InternalBasicProblemDetailsVersion3 problem : ((InternalFailureWithProblemsResult) result).getProblems()) {
-                problemReports.add(createproblemReport(problem));
+            Map<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> problems = ((InternalFailureWithProblemsResult) result).getProblems();
+
+            Map<Failure, List<ProblemReport>> clientProblems = new HashMap<>();
+            for (Map.Entry<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> entry : problems.entrySet()) {
+                Failure key = toFailure(entry.getKey()); // TODO (donat) we should think about object equality in the tapi client side;
+                List<ProblemReport> value = new ArrayList<>(entry.getValue().size());
+                for (InternalBasicProblemDetailsVersion3 details : entry.getValue()) {
+                    value.add(createproblemReport(details));
+                }
+                clientProblems.put(key, value);
             }
-            DefaultOperationFailureResultWithProblems defaultOperationFailureResultWithProblems = new DefaultOperationFailureResultWithProblems(result.getStartTime(), result.getEndTime(), toFailures(result.getFailures()), problemReports);
+
+            DefaultOperationFailureResult defaultOperationFailureResultWithProblems = new DefaultOperationFailureResult(result.getStartTime(), result.getEndTime(), toFailures(result.getFailures()), clientProblems);
             return defaultOperationFailureResultWithProblems;
         } else if (result instanceof InternalFailureResult) {
             return new DefaultOperationFailureResult(result.getStartTime(), result.getEndTime(), toFailures(result.getFailures()));

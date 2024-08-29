@@ -17,7 +17,8 @@ package org.gradle.tooling;
 
 import org.gradle.tooling.events.problems.ProblemReport;
 
-import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Thrown when a Gradle build fails or when a model cannot be built.
@@ -30,7 +31,7 @@ public class BuildException extends GradleConnectionException {
         super(message, throwable);
     }
 
-    public BuildException(String message, Throwable throwable, Collection<ProblemReport> problems) {
+    public BuildException(String message, Throwable throwable, Map<Failure, List<ProblemReport>> problems) {
         super(message, throwable, problems);
     }
 }

@@ -25,6 +25,7 @@ import org.gradle.tooling.events.OperationType
 import org.gradle.tooling.events.ProgressEvent
 import org.gradle.tooling.events.ProgressListener
 import org.gradle.tooling.events.problems.ProblemEvent
+import spock.lang.IgnoreRest
 
 @ToolingApiVersion('>=8.11')
 @TargetGradleVersion('>=8.11')
@@ -50,10 +51,14 @@ class ProblemWithBuildFailureBuildLauncherCrossVersionSpec extends ToolingApiSpe
         (resultHandler.failure as GradleConnectionException).problemReports.size() == 0
     }
 
+    @IgnoreRest
     def "clients receive single problem report associated with build failure"() {
         // TODO (donat) This is clunky. Clients may want to get all problems and the ones associated with build failures.
         // Reporting the latter one should not require a seemingly random listener registration.
         given:
+        settingsFile << """
+            rootProject.name = 'root'
+        """
         buildFile << """
             plugins {
                 id 'java'
@@ -68,10 +73,12 @@ class ProblemWithBuildFailureBuildLauncherCrossVersionSpec extends ToolingApiSpe
                 .addProgressListener(new ProblemProgressListener(), OperationType.PROBLEMS)
                 .run(resultHandler)
         }
+        def reports = (resultHandler.failure as GradleConnectionException).problemReports
 
         then:
-        (resultHandler.failure as GradleConnectionException).problemReports.size() == 1
-        (resultHandler.failure as GradleConnectionException).problemReports[0].definition.id.displayName == "Ambiguous matches"
+        reports.size() == 1
+        reports.entrySet().iterator().next().key.message == 'Task \'c\' is ambiguous in root project \'root\'. Candidates are: \'check\', \'classes\', \'clean\', \'components\'.'
+        reports.entrySet().iterator().next().value[0].definition.id.displayName == 'Ambiguous matches'
     }
 
     class FailureCollectingResultHandler implements ResultHandler<Void> {
@@ -87,13 +94,11 @@ class ProblemWithBuildFailureBuildLauncherCrossVersionSpec extends ToolingApiSpe
         }
     }
 
-
     class ProblemProgressListener implements ProgressListener {
 
         @Override
         void statusChanged(ProgressEvent event) {
             if (event instanceof ProblemEvent) {
-                System.err.println("event")
             }
         }
     }

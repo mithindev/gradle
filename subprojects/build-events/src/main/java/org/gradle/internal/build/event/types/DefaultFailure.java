@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 public class DefaultFailure implements Serializable, InternalFailure {
@@ -53,6 +54,10 @@ public class DefaultFailure implements Serializable, InternalFailure {
     }
 
     public static InternalFailure fromThrowable(Throwable t) {
+        return fromThrowable(t, (throwable, failure) -> {});
+    }
+
+    public static InternalFailure fromThrowable(Throwable t, BiConsumer<Throwable, InternalFailure> consumer) {
         StringWriter out = new StringWriter();
         PrintWriter wrt = new PrintWriter(out);
         t.printStackTrace(wrt);
@@ -61,10 +66,12 @@ public class DefaultFailure implements Serializable, InternalFailure {
         if (cause == null) {
             causeFailure = Collections.emptyList();
         } else if (cause instanceof MultiCauseException) {
-            causeFailure = ((MultiCauseException) cause).getCauses().stream().map(DefaultFailure::fromThrowable).collect(Collectors.toList());
+            causeFailure = ((MultiCauseException) cause).getCauses().stream().map(c -> fromThrowable(c, consumer)).collect(Collectors.toList());
         } else {
-            causeFailure = Collections.singletonList(fromThrowable(cause));
+            causeFailure = Collections.singletonList(fromThrowable(cause, consumer));
         }
-        return new DefaultFailure(t.getMessage(), out.toString(), causeFailure);
+        DefaultFailure result = new DefaultFailure(t.getMessage(), out.toString(), causeFailure);
+        consumer.accept(t, result);
+        return result;
     }
 }

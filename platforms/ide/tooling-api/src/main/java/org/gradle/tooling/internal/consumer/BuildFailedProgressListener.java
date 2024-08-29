@@ -17,7 +17,7 @@
 package org.gradle.tooling.internal.consumer;
 
 import org.gradle.tooling.Failure;
-import org.gradle.tooling.events.FailureResultWithProblems;
+import org.gradle.tooling.events.FailureResult;
 import org.gradle.tooling.events.FinishEvent;
 import org.gradle.tooling.events.OperationResult;
 import org.gradle.tooling.events.ProgressEvent;
@@ -25,10 +25,11 @@ import org.gradle.tooling.events.ProgressListener;
 import org.gradle.tooling.events.problems.ProblemReport;
 
 import java.util.List;
+import java.util.Map;
 
 public class BuildFailedProgressListener implements ProgressListener {
     public List<? extends Failure> failures;
-    public List<ProblemReport> problems;
+    public Map<Failure, List<ProblemReport>> problems;
 
     public BuildFailedProgressListener() {
     }
@@ -39,9 +40,9 @@ public class BuildFailedProgressListener implements ProgressListener {
             System.out.println("! >  + event");
             System.out.println("! >  + event");
             OperationResult result = ((FinishEvent) event).getResult();
-            if (result instanceof FailureResultWithProblems) {
-                this.failures = ((FailureResultWithProblems) result).getFailures();
-                this.problems = ((FailureResultWithProblems) result).getProblems();
+            if (result instanceof FailureResult) {
+                this.failures = ((FailureResult) result).getFailures();
+                this.problems = ((FailureResult) result).getProblems();
             }
         }
     }

@@ -20,20 +20,22 @@ import org.gradle.tooling.internal.protocol.InternalBasicProblemDetailsVersion3;
 import org.gradle.tooling.internal.protocol.InternalFailure;
 import org.gradle.tooling.internal.protocol.events.InternalFailureWithProblemsResult;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 // TODO (donat) Find a better name for this class
 public class DefaultFailureWithProblemResult extends DefaultFailureResult implements InternalFailureWithProblemsResult {
 
-    final List<InternalBasicProblemDetailsVersion3> problems; // TODO (donat) Collection or list?
+    final Map<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> problems;
 
-    public DefaultFailureWithProblemResult(long startTime, long endTime, List<InternalFailure> failures, List<InternalBasicProblemDetailsVersion3> problems) {
+    public DefaultFailureWithProblemResult(long startTime, long endTime, List<InternalFailure> failures, Map<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> problems) {
         super(startTime, endTime, failures);
         this.problems = problems;
     }
 
     @Override
-    public List<InternalBasicProblemDetailsVersion3> getProblems() {
+    public Map<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> getProblems() {
         return problems;
     }
 }

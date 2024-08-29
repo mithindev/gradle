@@ -17,8 +17,10 @@
 package org.gradle.tooling.events;
 
 import org.gradle.tooling.Failure;
+import org.gradle.tooling.events.problems.ProblemReport;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Describes how an operation finished with failures.
@@ -34,4 +36,10 @@ public interface FailureResult extends OperationResult {
      */
     List<? extends Failure> getFailures();
 
+    /**
+     * TODO - describe problems.
+     *
+     * @since 8.11
+     */
+    Map<Failure, List<ProblemReport>> getProblems();
 }
