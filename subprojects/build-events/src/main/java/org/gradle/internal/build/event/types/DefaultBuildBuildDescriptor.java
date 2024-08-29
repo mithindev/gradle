@@ -16,8 +16,10 @@
 
 package org.gradle.internal.build.event.types;
 
+import org.gradle.api.NonNullApi;
 import org.gradle.internal.operations.OperationIdentifier;
 
+@NonNullApi
 public class DefaultBuildBuildDescriptor extends DefaultOperationDescriptor {
     public DefaultBuildBuildDescriptor(OperationIdentifier id, String name, String displayName, OperationIdentifier parentId) {
         super(id, name, displayName, parentId);

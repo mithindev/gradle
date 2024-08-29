@@ -16,6 +16,7 @@
 package org.gradle.tooling;
 
 import com.google.common.collect.ImmutableMap;
+import org.gradle.api.Incubating;
 import org.gradle.tooling.events.problems.ProblemReport;
 
 import java.util.Collections;
@@ -40,12 +41,25 @@ public class GradleConnectionException extends RuntimeException {
         this.problemReports = Collections.emptyMap();
     }
 
+    /**
+     * TODO description.
+     *
+     * @since 8.11
+     */
+    @Incubating
     public GradleConnectionException(String message, Throwable throwable, Map<Failure, List<ProblemReport>> problems) {
         super(message, throwable);
         this.problemReports = ImmutableMap.copyOf(problems);
     }
 
-    public Map<Failure, List<ProblemReport>> getProblemReports() {
+    /**
+     * TODO description.
+     *
+     * @return the reported problems for this failure.
+     * @since 8.11
+     */
+    @Incubating
+    public Map<Failure, List<ProblemReport>> problemReports() {
         return problemReports;
     }
 }

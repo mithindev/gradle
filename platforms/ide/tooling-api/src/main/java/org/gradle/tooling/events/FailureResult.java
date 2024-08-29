@@ -16,6 +16,7 @@
 
 package org.gradle.tooling.events;
 
+import org.gradle.api.Incubating;
 import org.gradle.tooling.Failure;
 import org.gradle.tooling.events.problems.ProblemReport;
 
@@ -40,6 +41,6 @@ public interface FailureResult extends OperationResult {
      * TODO - describe problems.
      *
      * @since 8.11
-     */
+     */@Incubating
     Map<Failure, List<ProblemReport>> getProblems();
 }

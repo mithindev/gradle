@@ -16,6 +16,7 @@
 
 package org.gradle.tooling.internal.consumer;
 
+import org.gradle.api.NonNullApi;
 import org.gradle.tooling.Failure;
 import org.gradle.tooling.events.FailureResult;
 import org.gradle.tooling.events.FinishEvent;
@@ -27,6 +28,7 @@ import org.gradle.tooling.events.problems.ProblemReport;
 import java.util.List;
 import java.util.Map;
 
+@NonNullApi
 public class BuildFailedProgressListener implements ProgressListener {
     public List<? extends Failure> failures;
     public Map<Failure, List<ProblemReport>> problems;

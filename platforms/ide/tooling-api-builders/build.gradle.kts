@@ -19,7 +19,7 @@ dependencies {
     implementation(projects.testingJvm)
     implementation(projects.workers)
     implementation(projects.testingBaseInfrastructure)
-    implementation(libs.guava)
+    api(libs.guava) // TODO (donat) revert it back to implementation
     implementation(libs.commonsIo)
 
     api(libs.jsr305)

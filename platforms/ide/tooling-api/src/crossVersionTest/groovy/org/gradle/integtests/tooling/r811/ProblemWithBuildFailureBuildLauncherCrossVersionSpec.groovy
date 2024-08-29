@@ -25,7 +25,6 @@ import org.gradle.tooling.events.OperationType
 import org.gradle.tooling.events.ProgressEvent
 import org.gradle.tooling.events.ProgressListener
 import org.gradle.tooling.events.problems.ProblemEvent
-import spock.lang.IgnoreRest
 
 @ToolingApiVersion('>=8.11')
 @TargetGradleVersion('>=8.11')
@@ -48,10 +47,10 @@ class ProblemWithBuildFailureBuildLauncherCrossVersionSpec extends ToolingApiSpe
         }
 
         then:
-        (resultHandler.failure as GradleConnectionException).problemReports.size() == 0
+        (resultHandler.failure as GradleConnectionException).problemReports().size() == 0
     }
 
-    @IgnoreRest
+
     def "clients receive single problem report associated with build failure"() {
         // TODO (donat) This is clunky. Clients may want to get all problems and the ones associated with build failures.
         // Reporting the latter one should not require a seemingly random listener registration.
@@ -73,7 +72,7 @@ class ProblemWithBuildFailureBuildLauncherCrossVersionSpec extends ToolingApiSpe
                 .addProgressListener(new ProblemProgressListener(), OperationType.PROBLEMS)
                 .run(resultHandler)
         }
-        def reports = (resultHandler.failure as GradleConnectionException).problemReports
+        def reports = (resultHandler.failure as GradleConnectionException).problemReports()
 
         then:
         reports.size() == 1

@@ -18,6 +18,7 @@ package org.gradle.tooling.internal.provider.runner;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import org.gradle.api.NonNullApi;
 import org.gradle.api.problems.internal.Problem;
 import org.gradle.api.problems.internal.ProblemAwareFailure;
 import org.gradle.internal.build.event.BuildEventSubscriptions;
@@ -46,12 +47,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@NonNullApi
 class RunBuildBuildOperationMapper implements BuildOperationMapper<RunBuildBuildOperationType.Details, DefaultBuildBuildDescriptor> {
 
     @Nullable
     private final ProblemsProgressEventConsumer problemConsumer;
 
-    public RunBuildBuildOperationMapper(@Nullable ProblemsProgressEventConsumer problemConsumer) {this.problemConsumer = problemConsumer;}
+    public RunBuildBuildOperationMapper(@Nullable ProblemsProgressEventConsumer problemConsumer) {
+        this.problemConsumer = problemConsumer;
+    }
 
     @Override
     public boolean isEnabled(BuildEventSubscriptions subscriptions) {

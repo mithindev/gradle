@@ -23,6 +23,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 /**
+ * TODO document me.
+ *
  * @since 8.11
  */
 @Incubating
@@ -33,48 +35,54 @@ public interface ProblemReport {
      * Returns the problem definition.
      *
      * @return the definition
-     * @since 8.9
+     * @since 8.11
      */
+    @Incubating
     ProblemDefinition getDefinition();
 
     /**
      * Returns the contextual label.
      *
      * @return the problem label
-     * @since 8.9
+     * @since 8.11
      */
+    @Incubating
     ContextualLabel getContextualLabel();
 
     /**
      * Returns the details string.
      *
      * @return the problem details
-     * @since 8.8
+     * @since 8.11
      */
+    @Incubating
     Details getDetails();
 
     /**
      * Returns the locations associated with this problem.
      *
      * @return the locations
-     * @since 8.8
+     * @since 8.11
      */
+    @Incubating
     List<Location> getLocations();
 
     /**
      * Returns the list of solutions.
      *
      * @return the solutions
-     * @since 8.8
+     * @since 8.11
      */
+    @Incubating
     List<Solution> getSolutions();
 
     /**
      * Returns the failure associated with this problem.
      *
      * @return the failure
-     * @since 8.8
+     * @since 8.11
      */
+    @Incubating
     @Nullable
     FailureContainer getFailure();
 
@@ -82,7 +90,8 @@ public interface ProblemReport {
      * Returns the additional data associated with this problem.
      *
      * @return the additional data
-     * @since 8.9
+     * @since 8.11
      */
+    @Incubating
     AdditionalData getAdditionalData();
 }

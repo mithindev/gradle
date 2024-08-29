@@ -16,6 +16,7 @@
 
 package org.gradle.tooling.internal.consumer;
 
+import org.gradle.api.NonNullApi;
 import org.gradle.internal.event.ListenerNotificationException;
 import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.BuildException;
@@ -34,6 +35,7 @@ import org.gradle.tooling.internal.protocol.test.InternalTestExecutionException;
 import java.util.List;
 import java.util.Map;
 
+@NonNullApi
 public class FailureAwareConnectionExceptionTransformer extends ConnectionExceptionTransformer {
 
     private final AbstractLongRunningOperation longRunningOperation;

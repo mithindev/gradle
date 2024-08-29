@@ -15,6 +15,7 @@
  */
 package org.gradle.tooling;
 
+import org.gradle.api.Incubating;
 import org.gradle.tooling.events.problems.ProblemReport;
 
 import java.util.List;
@@ -31,6 +32,11 @@ public class BuildException extends GradleConnectionException {
         super(message, throwable);
     }
 
+    /**
+     * TODO document me.
+     * @since 8.11
+     */
+    @Incubating
     public BuildException(String message, Throwable throwable, Map<Failure, List<ProblemReport>> problems) {
         super(message, throwable, problems);
     }

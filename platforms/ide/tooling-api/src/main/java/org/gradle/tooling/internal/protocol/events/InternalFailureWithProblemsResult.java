@@ -16,6 +16,7 @@
 
 package org.gradle.tooling.internal.protocol.events;
 
+import org.gradle.api.NonNullApi;
 import org.gradle.tooling.internal.protocol.InternalBasicProblemDetailsVersion3;
 import org.gradle.tooling.internal.protocol.InternalFailure;
 
@@ -27,6 +28,7 @@ import java.util.Map;
  *
  * @since 8.11
  */
+@NonNullApi
 public interface InternalFailureWithProblemsResult extends InternalOperationResult {
 
     /**

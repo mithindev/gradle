@@ -16,6 +16,7 @@
 
 package org.gradle.internal.build.event.types;
 
+import org.gradle.api.NonNullApi;
 import org.gradle.tooling.internal.protocol.InternalBasicProblemDetailsVersion3;
 import org.gradle.tooling.internal.protocol.InternalFailure;
 import org.gradle.tooling.internal.protocol.events.InternalFailureWithProblemsResult;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 // TODO (donat) Find a better name for this class
+@NonNullApi
 public class DefaultFailureWithProblemResult extends DefaultFailureResult implements InternalFailureWithProblemsResult {
 
     final Map<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> problems;
