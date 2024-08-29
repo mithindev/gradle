@@ -15,6 +15,7 @@
  */
 package org.gradle.internal.build.event.types;
 
+import org.gradle.internal.exceptions.MultiCauseException;
 import org.gradle.tooling.internal.protocol.InternalFailure;
 
 import java.io.PrintWriter;
@@ -22,17 +23,18 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DefaultFailure implements Serializable, InternalFailure {
 
     private final String message;
     private final String description;
-    private final InternalFailure cause;
+    private final List<InternalFailure> causes;
 
-    protected DefaultFailure(String message, String description, InternalFailure cause) {
+    private DefaultFailure(String message, String description, List<InternalFailure> causes) {
         this.message = message;
         this.description = description;
-        this.cause = cause;
+        this.causes = causes;
     }
 
     @Override
@@ -47,7 +49,7 @@ public class DefaultFailure implements Serializable, InternalFailure {
 
     @Override
     public List<? extends InternalFailure> getCauses() {
-        return cause == null ? Collections.emptyList() : Collections.singletonList(cause);
+        return causes;
     }
 
     public static InternalFailure fromThrowable(Throwable t) {
@@ -55,7 +57,14 @@ public class DefaultFailure implements Serializable, InternalFailure {
         PrintWriter wrt = new PrintWriter(out);
         t.printStackTrace(wrt);
         Throwable cause = t.getCause();
-        InternalFailure causeFailure = cause != null && cause != t ? fromThrowable(cause) : null;
+        List<InternalFailure> causeFailure;
+        if (cause == null) {
+            causeFailure = Collections.emptyList();
+        } else if (cause instanceof MultiCauseException) {
+            causeFailure = ((MultiCauseException) cause).getCauses().stream().map(DefaultFailure::fromThrowable).collect(Collectors.toList());
+        } else {
+            causeFailure = Collections.singletonList(fromThrowable(cause));
+        }
         return new DefaultFailure(t.getMessage(), out.toString(), causeFailure);
     }
 }
