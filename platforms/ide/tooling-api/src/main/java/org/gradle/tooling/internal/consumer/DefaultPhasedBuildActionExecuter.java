@@ -17,11 +17,9 @@
 package org.gradle.tooling.internal.consumer;
 
 import org.gradle.tooling.BuildActionExecuter;
-import org.gradle.tooling.Failure;
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.ResultHandler;
 import org.gradle.tooling.StreamedValueListener;
-import org.gradle.tooling.events.problems.ProblemReport;
 import org.gradle.tooling.internal.consumer.async.AsyncConsumerActionExecutor;
 import org.gradle.tooling.internal.consumer.connection.ConsumerAction;
 import org.gradle.tooling.internal.consumer.connection.ConsumerConnection;
@@ -29,8 +27,6 @@ import org.gradle.tooling.internal.consumer.parameters.ConsumerOperationParamete
 import org.gradle.util.internal.CollectionUtils;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public class DefaultPhasedBuildActionExecuter extends AbstractLongRunningOperation<DefaultPhasedBuildActionExecuter> implements BuildActionExecuter<Void> {
     private final PhasedBuildAction phasedBuildAction;
@@ -91,22 +87,6 @@ public class DefaultPhasedBuildActionExecuter extends AbstractLongRunningOperati
             @Override
             public String getConnectionFailureMessage(Throwable throwable) {
                 return String.format("Could not run phased build action using %s.", connection.getDisplayName());
-            }
-
-            @Override
-            public List<? extends Failure> getFailures() {
-                if (buildFailedProgressListener != null && buildFailedProgressListener.failures !=null) {
-                    return buildFailedProgressListener.failures;
-                }
-                return Collections.emptyList();
-            }
-
-            @Override
-            public List<? extends ProblemReport> getProblems() {
-                if (buildFailedProgressListener != null && buildFailedProgressListener.problems !=null) {
-                    return buildFailedProgressListener.problems;
-                }
-                return Collections.emptyList();
             }
         })));
     }

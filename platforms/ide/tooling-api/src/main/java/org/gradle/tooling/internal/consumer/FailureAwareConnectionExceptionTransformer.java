@@ -22,6 +22,7 @@ import org.gradle.tooling.BuildException;
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.ListenerFailedException;
 import org.gradle.tooling.TestExecutionException;
+import org.gradle.tooling.events.problems.ProblemReport;
 import org.gradle.tooling.exceptions.UnsupportedBuildArgumentException;
 import org.gradle.tooling.exceptions.UnsupportedOperationConfigurationException;
 import org.gradle.tooling.internal.protocol.BuildExceptionVersion1;
@@ -29,14 +30,22 @@ import org.gradle.tooling.internal.protocol.InternalBuildCancelledException;
 import org.gradle.tooling.internal.protocol.exceptions.InternalUnsupportedBuildArgumentException;
 import org.gradle.tooling.internal.protocol.test.InternalTestExecutionException;
 
-public class ConnectionExceptionTransformer {
-    private final ConnectionFailureMessageProvider messageProvider;
+import java.util.List;
 
-    public ConnectionExceptionTransformer(ConnectionFailureMessageProvider messageProvider) {
-        this.messageProvider = messageProvider;
+public class FailureAwareConnectionExceptionTransformer extends ConnectionExceptionTransformer {
+
+    private final AbstractLongRunningOperation longRunningOperation;
+
+    public FailureAwareConnectionExceptionTransformer(ConnectionFailureMessageProvider messageProvider, AbstractLongRunningOperation longRunningOperation) {
+        super(messageProvider);
+        this.longRunningOperation = longRunningOperation;
     }
 
+    @Override
     public GradleConnectionException transform(Throwable failure) {
+        BuildFailedProgressListener buildFailedListener = longRunningOperation.buildFailedProgressListener;
+        List<ProblemReport> problems = buildFailedListener == null ? null : buildFailedListener.problems;
+
         if (failure instanceof InternalUnsupportedBuildArgumentException) {
             return new UnsupportedBuildArgumentException(connectionFailureMessage(failure)
                 + "\n" + failure.getMessage(), failure);
@@ -50,19 +59,15 @@ public class ConnectionExceptionTransformer {
         } else if (failure instanceof InternalTestExecutionException) {
             return new TestExecutionException(connectionFailureMessage(failure), failure.getCause());
         } else if (failure instanceof BuildExceptionVersion1) {
-            return new BuildException(connectionFailureMessage(failure), failure.getCause());
+            if (problems != null) {
+                return new BuildException(connectionFailureMessage(failure), failure.getCause(), problems);
+            } else {
+                return new BuildException(connectionFailureMessage(failure), failure.getCause());
+            }
         } else if (failure instanceof ListenerNotificationException) {
             return new ListenerFailedException(connectionFailureMessage(failure), ((ListenerNotificationException) failure).getCauses());
         } else {
             return new GradleConnectionException(connectionFailureMessage(failure), failure);
         }
-    }
-
-    protected String connectionFailureMessage(Throwable failure) {
-        return messageProvider.getConnectionFailureMessage(failure);
-    }
-
-    public interface ConnectionFailureMessageProvider {
-        String getConnectionFailureMessage(Throwable failure);
     }
 }

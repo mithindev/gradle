@@ -21,12 +21,10 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.gradle.api.Action;
 import org.gradle.internal.InternalTransformer;
-import org.gradle.tooling.Failure;
 import org.gradle.tooling.ResultHandler;
 import org.gradle.tooling.TestExecutionException;
 import org.gradle.tooling.TestLauncher;
 import org.gradle.tooling.TestSpecs;
-import org.gradle.tooling.events.problems.ProblemReport;
 import org.gradle.tooling.events.test.TestOperationDescriptor;
 import org.gradle.tooling.events.test.internal.DefaultDebugOptions;
 import org.gradle.tooling.internal.consumer.async.AsyncConsumerActionExecutor;
@@ -215,22 +213,6 @@ public class DefaultTestLauncher extends AbstractLongRunningOperation<DefaultTes
                 @Override
                 public String getConnectionFailureMessage(Throwable throwable) {
                     return String.format("Could not execute tests using %s.", connection.getDisplayName());
-                }
-
-                @Override
-                public List<? extends Failure> getFailures() {
-                    if (buildFailedProgressListener != null && buildFailedProgressListener.failures !=null) {
-                        return buildFailedProgressListener.failures;
-                    }
-                    return Collections.emptyList();
-                }
-
-                @Override
-                public List<? extends ProblemReport> getProblems() {
-                    if (buildFailedProgressListener != null && buildFailedProgressListener.problems !=null) {
-                        return buildFailedProgressListener.problems;
-                    }
-                    return Collections.emptyList();
                 }
             }));
         }

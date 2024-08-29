@@ -15,17 +15,36 @@
  */
 package org.gradle.tooling;
 
+import com.google.common.collect.ImmutableList;
+import org.gradle.tooling.events.problems.ProblemReport;
+
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * Thrown when there is some problem using a Gradle connection.
  *
  * @since 1.0-milestone-3
  */
 public class GradleConnectionException extends RuntimeException {
+    private final Collection<ProblemReport> problemReports;
+
     public GradleConnectionException(String message) {
         super(message);
+        this.problemReports = Collections.emptyList();
     }
 
     public GradleConnectionException(String message, Throwable throwable) {
         super(message, throwable);
+        this.problemReports = Collections.emptyList();
+    }
+
+    public GradleConnectionException(String message, Throwable throwable, Collection<ProblemReport> problems) {
+        super(message, throwable);
+        this.problemReports = ImmutableList.copyOf(problems);
+    }
+
+    public Collection<ProblemReport> getProblemReports() {
+        return problemReports;
     }
 }

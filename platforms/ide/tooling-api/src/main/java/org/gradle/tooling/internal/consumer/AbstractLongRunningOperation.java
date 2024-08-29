@@ -180,7 +180,8 @@ public abstract class AbstractLongRunningOperation<T extends AbstractLongRunning
     }
 
     private void maybeAddProblemListener(ConsumerOperationParameters.Builder operationParamsBuilder, Set<OperationType> eventTypes) {
-        if (buildFailedProgressListener == null && eventTypes.contains(OperationType.GENERIC) && eventTypes.contains(OperationType.PROBLEMS))  {
+        // TODO (donat) when exactly we need to add the buildFailedProgressListener?
+        if (buildFailedProgressListener == null && eventTypes.contains(OperationType.PROBLEMS))  {
             operationParamsBuilder.addProgressListener(buildFailedProgressListener = new BuildFailedProgressListener(), EnumSet.of(OperationType.GENERIC, OperationType.PROBLEMS));
         }
     }
@@ -205,5 +206,9 @@ public abstract class AbstractLongRunningOperation<T extends AbstractLongRunning
 
     public void copyFrom(ConsumerOperationParameters operationParameters) {
         operationParamsBuilder.copyFrom(operationParameters);
+    }
+
+    protected ConnectionExceptionTransformer createConnectionExceptionTransformer(ConnectionExceptionTransformer.ConnectionFailureMessageProvider provider) {
+        return new FailureAwareConnectionExceptionTransformer(provider, this);
     }
 }

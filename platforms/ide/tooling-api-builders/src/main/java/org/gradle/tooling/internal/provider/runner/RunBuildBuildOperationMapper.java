@@ -91,6 +91,7 @@ class RunBuildBuildOperationMapper implements BuildOperationMapper<RunBuildBuild
                 }
             }
             List<InternalBasicProblemDetailsVersion3> protocolProblems = problems.stream().map(ProblemsProgressEventConsumer::createDefaultProblemDetails).collect(Collectors.toList());
+            // TODO (donat) should send a DefaultFailure -> Collection<Problem> mapping
             return new DefaultFailureWithProblemResult(startTime, endTime, Collections.singletonList(DefaultFailure.fromThrowable(failure)), protocolProblems);
         }
         return new DefaultSuccessResult(startTime, endTime);
