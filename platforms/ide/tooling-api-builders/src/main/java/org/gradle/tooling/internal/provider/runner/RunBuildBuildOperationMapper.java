@@ -44,6 +44,7 @@ import org.gradle.tooling.internal.protocol.events.InternalOperationStartedProgr
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -97,7 +98,8 @@ class RunBuildBuildOperationMapper implements BuildOperationMapper<RunBuildBuild
                     problems.putAll(internalFailure, details);
                 }
             });
-            return new DefaultFailureWithProblemResult(startTime, endTime, Collections.singletonList(rootFailure), problems.asMap());
+            HashMap<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> problemsMap = new HashMap<>(problems.asMap()); // HashMap to make it serializable
+            return new DefaultFailureWithProblemResult(startTime, endTime, Collections.singletonList(rootFailure), problemsMap);
         }
         return new DefaultSuccessResult(startTime, endTime);
     }

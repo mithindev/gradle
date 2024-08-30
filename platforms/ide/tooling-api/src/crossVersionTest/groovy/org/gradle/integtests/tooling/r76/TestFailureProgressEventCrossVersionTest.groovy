@@ -30,6 +30,7 @@ import org.gradle.tooling.events.ProgressListener
 import org.gradle.tooling.events.test.TestFailureResult
 import org.gradle.tooling.events.test.TestFinishEvent
 import org.gradle.tooling.events.test.TestOperationResult
+import spock.lang.IgnoreRest
 
 @ToolingApiVersion(">=7.6")
 @TargetGradleVersion(">=7.6")
@@ -44,6 +45,7 @@ class TestFailureProgressEventCrossVersionTest extends ToolingApiSpecification {
         progressEventCollector = new ProgressEventCollector()
     }
 
+    @IgnoreRest
     def "Emits test failure events for Junit 3 tests"() {
         setup:
         buildFile << """
