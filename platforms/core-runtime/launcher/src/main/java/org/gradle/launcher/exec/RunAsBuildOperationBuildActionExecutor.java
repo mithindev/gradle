@@ -34,6 +34,7 @@ public class RunAsBuildOperationBuildActionExecutor implements BuildSessionActio
     private static final RunBuildBuildOperationType.Details DETAILS = new RunBuildBuildOperationType.Details() {
     };
     private static final RunBuildBuildOperationType.Result RESULT = new RunBuildBuildOperationType.Result() {
+        // TODO (donat) we need to store the problem association in this object
     };
     private final BuildSessionActionExecutor delegate;
     private final BuildOperationRunner buildOperationRunner;
