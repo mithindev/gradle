@@ -18,34 +18,27 @@ package org.gradle.tooling.internal.consumer;
 
 import org.gradle.api.NonNullApi;
 import org.gradle.tooling.Failure;
-import org.gradle.tooling.events.FailureResult;
-import org.gradle.tooling.events.FinishEvent;
-import org.gradle.tooling.events.OperationResult;
 import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.events.ProgressListener;
 import org.gradle.tooling.events.problems.ProblemReport;
+import org.gradle.tooling.events.problems.ProblemToFailureEvent;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 @NonNullApi
 public class BuildFailedProgressListener implements ProgressListener {
-    public List<? extends Failure> failures;
-    public Map<Failure, List<ProblemReport>> problems;
-
-    public BuildFailedProgressListener() {
-    }
+    public Map<Failure, Collection<ProblemReport>> problems;
 
     @Override
     public void statusChanged(ProgressEvent event) {
-        if (event instanceof FinishEvent && event.getDescriptor().getParent() == null) {
-            System.out.println("! >  + event");
-            System.out.println("! >  + event");
-            OperationResult result = ((FinishEvent) event).getResult();
-            if (result instanceof FailureResult) {
-                this.failures = ((FailureResult) result).getFailures();
-                this.problems = ((FailureResult) result).getProblems();
-            }
+        // TODO (donat) countdown latch when the root build operation finishes
+        if (event instanceof ProblemToFailureEvent) {
+            this.problems = ((ProblemToFailureEvent) event).getProblemsForFailures();
         }
+    }
+
+    public Map<Failure, Collection<ProblemReport>> getProblems() {
+        return problems;
     }
 }

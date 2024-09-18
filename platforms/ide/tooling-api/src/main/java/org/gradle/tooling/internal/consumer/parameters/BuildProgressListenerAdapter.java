@@ -77,6 +77,7 @@ import org.gradle.tooling.events.problems.ProblemEvent;
 import org.gradle.tooling.events.problems.ProblemGroup;
 import org.gradle.tooling.events.problems.ProblemId;
 import org.gradle.tooling.events.problems.ProblemReport;
+import org.gradle.tooling.events.problems.ProblemToFailureEvent;
 import org.gradle.tooling.events.problems.Severity;
 import org.gradle.tooling.events.problems.Solution;
 import org.gradle.tooling.events.problems.internal.DefaultContextualLabel;
@@ -93,6 +94,7 @@ import org.gradle.tooling.events.problems.internal.DefaultProblemDefinition;
 import org.gradle.tooling.events.problems.internal.DefaultProblemGroup;
 import org.gradle.tooling.events.problems.internal.DefaultProblemId;
 import org.gradle.tooling.events.problems.internal.DefaultProblemReport;
+import org.gradle.tooling.events.problems.internal.DefaultProblemToFailureEvent;
 import org.gradle.tooling.events.problems.internal.DefaultProblemsOperationContext;
 import org.gradle.tooling.events.problems.internal.DefaultSeverity;
 import org.gradle.tooling.events.problems.internal.DefaultSingleProblemEvent;
@@ -188,6 +190,7 @@ import org.gradle.tooling.internal.protocol.events.InternalOperationResult;
 import org.gradle.tooling.internal.protocol.events.InternalOperationStartedProgressEvent;
 import org.gradle.tooling.internal.protocol.events.InternalPluginIdentifier;
 import org.gradle.tooling.internal.protocol.events.InternalProblemDescriptor;
+import org.gradle.tooling.internal.protocol.events.InternalProblemToFailureDescriptor;
 import org.gradle.tooling.internal.protocol.events.InternalProgressEvent;
 import org.gradle.tooling.internal.protocol.events.InternalProjectConfigurationDescriptor;
 import org.gradle.tooling.internal.protocol.events.InternalProjectConfigurationResult;
@@ -228,6 +231,7 @@ import org.gradle.tooling.internal.protocol.problem.InternalOffsetInFileLocation
 import org.gradle.tooling.internal.protocol.problem.InternalPluginIdLocation;
 import org.gradle.tooling.internal.protocol.problem.InternalProblemCategory;
 import org.gradle.tooling.internal.protocol.problem.InternalProblemDetailsVersion2;
+import org.gradle.tooling.internal.protocol.problem.InternalProblemToFailureDetails;
 import org.gradle.tooling.internal.protocol.problem.InternalSeverity;
 import org.gradle.tooling.internal.protocol.problem.InternalSolution;
 import org.gradle.tooling.internal.protocol.problem.InternalTaskPathLocation;
@@ -387,6 +391,8 @@ public class BuildProgressListenerAdapter implements InternalBuildProgressListen
             broadcastBuildPhaseEvent(progressEvent, (InternalBuildPhaseDescriptor) descriptor);
         } else if (descriptor instanceof InternalProblemDescriptor) {
             broadcastProblemEvent(progressEvent, (InternalProblemDescriptor) descriptor);
+        } else if (descriptor instanceof InternalProblemToFailureDescriptor) {
+            broadcastProblemToFailureEvent((InternalProblemEventVersion2) progressEvent, (InternalProblemToFailureDescriptor) descriptor);
         } else {
             broadcastGenericProgressEvent(progressEvent);
         }
@@ -458,6 +464,13 @@ public class BuildProgressListenerAdapter implements InternalBuildProgressListen
         ProgressEvent progressEvent = toBuildPhaseEvent(event, descriptor);
         if (progressEvent != null) {
             buildPhaseListeners.getSource().statusChanged(progressEvent);
+        }
+    }
+
+    private void broadcastProblemToFailureEvent(InternalProblemEventVersion2 progressEvent, InternalProblemToFailureDescriptor descriptor) {
+        ProblemEvent problemEvent = toProblemToFailureEvent(progressEvent, descriptor);
+        if (problemEvent != null) {
+            problemListeners.getSource().statusChanged(problemEvent);
         }
     }
 
@@ -582,6 +595,31 @@ public class BuildProgressListenerAdapter implements InternalBuildProgressListen
         }
         return null;
     }
+
+    private @Nullable ProblemToFailureEvent toProblemToFailureEvent(InternalProblemEventVersion2 problemEvent, InternalProblemToFailureDescriptor descriptor) {
+        InternalProblemDetailsVersion2 details = problemEvent.getDetails();
+        if (details instanceof InternalProblemToFailureDetails) {
+            InternalProblemToFailureDetails problemToFailureDetails = (InternalProblemToFailureDetails) details;
+            Map<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> problems = problemToFailureDetails.getProblems();
+            Map<Failure, Collection<ProblemReport>> clientProblems = new HashMap<>();
+            for (Map.Entry<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> entry : problems.entrySet()) {
+                Failure key = toFailure(entry.getKey()); // TODO (donat) we should think about object equality in the tapi client side;
+                List<ProblemReport> value = new ArrayList<>(entry.getValue().size());
+                for (InternalBasicProblemDetailsVersion3 d : entry.getValue()) {
+                    value.add(createproblemReport(d));
+                }
+                clientProblems.put(key, value);
+            }
+            return new DefaultProblemToFailureEvent(
+                problemEvent.getEventTime(),
+                getParentDescriptor(descriptor.getParentId()),
+                null,
+                clientProblems
+            );
+        }
+        return null;
+    }
+
 
     private @Nullable ProblemEvent createProblemEvent(InternalProblemEvent problemEvent, InternalProblemDescriptor descriptor) {
         InternalProblemDetails details = problemEvent.getDetails();

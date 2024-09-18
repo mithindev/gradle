@@ -104,7 +104,7 @@ public class ToolingApiBuildEventListenerFactory implements BuildEventListenerFa
             taskOperationMapper,
             transformOperationMapper,
             new WorkItemOperationMapper(),
-            new RunBuildBuildOperationMapper(problemConsumer)
+            new RunBuildBuildOperationMapper(problemConsumer, idFactory)
         );
         return new ClientBuildEventGenerator(progressEventConsumer, subscriptions, mappers, buildListener);
     }

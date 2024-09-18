@@ -21,6 +21,7 @@ import com.google.common.collect.Multimap;
 import org.gradle.api.NonNullApi;
 import org.gradle.api.problems.internal.Problem;
 import org.gradle.api.problems.internal.ProblemAwareFailure;
+import org.gradle.api.problems.internal.ProblemToFailureAssociationProgressDetails;
 import org.gradle.internal.build.event.BuildEventSubscriptions;
 import org.gradle.internal.build.event.types.AbstractOperationResult;
 import org.gradle.internal.build.event.types.DefaultBuildBuildDescriptor;
@@ -29,10 +30,15 @@ import org.gradle.internal.build.event.types.DefaultFailureWithProblemResult;
 import org.gradle.internal.build.event.types.DefaultOperationFinishedProgressEvent;
 import org.gradle.internal.build.event.types.DefaultOperationStartedProgressEvent;
 import org.gradle.internal.build.event.types.DefaultProblemDetails;
+import org.gradle.internal.build.event.types.DefaultProblemToFailureDescriptor;
+import org.gradle.internal.build.event.types.DefaultProblemToFailureDetails;
+import org.gradle.internal.build.event.types.DefaultProblemToFailureEvent;
 import org.gradle.internal.build.event.types.DefaultSuccessResult;
 import org.gradle.internal.operations.BuildOperationDescriptor;
+import org.gradle.internal.operations.BuildOperationIdFactory;
 import org.gradle.internal.operations.OperationFinishEvent;
 import org.gradle.internal.operations.OperationIdentifier;
+import org.gradle.internal.operations.OperationProgressEvent;
 import org.gradle.internal.operations.OperationStartEvent;
 import org.gradle.launcher.exec.RunBuildBuildOperationType;
 import org.gradle.tooling.events.OperationType;
@@ -40,12 +46,17 @@ import org.gradle.tooling.internal.protocol.InternalBasicProblemDetailsVersion3;
 import org.gradle.tooling.internal.protocol.InternalFailure;
 import org.gradle.tooling.internal.protocol.events.InternalOperationFinishedProgressEvent;
 import org.gradle.tooling.internal.protocol.events.InternalOperationStartedProgressEvent;
+import org.gradle.tooling.internal.protocol.events.InternalProgressEvent;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @NonNullApi
@@ -54,8 +65,11 @@ class RunBuildBuildOperationMapper implements BuildOperationMapper<RunBuildBuild
     @Nullable
     private final ProblemsProgressEventConsumer problemConsumer;
 
-    public RunBuildBuildOperationMapper(@Nullable ProblemsProgressEventConsumer problemConsumer) {
+    private final Supplier<OperationIdentifier> operationIdentifierSupplier;
+
+    public RunBuildBuildOperationMapper(@Nullable ProblemsProgressEventConsumer problemConsumer, BuildOperationIdFactory idFactory) {
         this.problemConsumer = problemConsumer;
+        this.operationIdentifierSupplier = () -> new OperationIdentifier(idFactory.nextId());
     }
 
     @Override
@@ -78,6 +92,43 @@ class RunBuildBuildOperationMapper implements BuildOperationMapper<RunBuildBuild
     @Override
     public InternalOperationStartedProgressEvent createStartedEvent(DefaultBuildBuildDescriptor descriptor, RunBuildBuildOperationType.Details details, OperationStartEvent startEvent) {
         return new DefaultOperationStartedProgressEvent(startEvent.getStartTime(), descriptor);
+    }
+
+    @Nullable
+    @Override
+    public InternalProgressEvent createProgressEvent(DefaultBuildBuildDescriptor descriptor, OperationProgressEvent progressEvent) {
+        descriptor.getId();
+        Object progressEventDetails = progressEvent.getDetails();
+        if (progressEventDetails instanceof ProblemToFailureAssociationProgressDetails) {
+            ProblemToFailureAssociationProgressDetails details = (ProblemToFailureAssociationProgressDetails) progressEventDetails;
+            Throwable failure = details.getBuildFailure();
+            Map<Throwable, Collection<Problem>> problemsForThrowables = details.getProblemsForThrowables();
+
+            Multimap<InternalFailure, InternalBasicProblemDetailsVersion3> problems = ArrayListMultimap.create();
+            InternalFailure rootFailure = DefaultFailure.fromThrowable(failure, (throwable, internalFailure) -> {
+                problems.putAll(internalFailure, toProblemDetails(problemsForThrowables.get(throwable)));
+                if (throwable instanceof ProblemAwareFailure) {
+                    problems.putAll(internalFailure, toProblemDetails(((ProblemAwareFailure) throwable).getProblems()));
+                }
+            });
+            HashMap<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> problemsMap = new HashMap<>();
+            // move entries to HashMap manually because MultiMap.asMap().values() is not serializable
+            for (Map.Entry<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> entry :problems.asMap().entrySet()) {
+                problemsMap.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+            }
+
+            return new DefaultProblemToFailureEvent(
+                new DefaultProblemToFailureDescriptor(
+                    operationIdentifierSupplier.get(),
+                    descriptor.getId()
+                ),
+                new DefaultProblemToFailureDetails(
+                    Collections.singletonList(rootFailure),
+                    problemsMap
+                )
+            );
+        }
+        return null;
     }
 
     @Override
@@ -105,6 +156,9 @@ class RunBuildBuildOperationMapper implements BuildOperationMapper<RunBuildBuild
     }
 
     private static List<DefaultProblemDetails> toProblemDetails(Collection<Problem> p) {
-        return p.stream().map(ProblemsProgressEventConsumer::createDefaultProblemDetails).collect(Collectors.toList());
+        if (p == null) {
+            return Collections.emptyList();
+        }
+        return p.stream().filter(Objects::nonNull).map(ProblemsProgressEventConsumer::createDefaultProblemDetails).collect(Collectors.toList());
     }
 }

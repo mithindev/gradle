@@ -232,7 +232,9 @@ public class LauncherServices extends AbstractGradleModuleServices {
                                         new ChainingBuildActionRunner(buildActionRunners),
                                         exceptionAnalyser,
                                         buildLayout,
-                                        problemReporters
+                                        problemReporters,
+                                        eventEmitter,
+                                        problemsService
                                     ),
                                     buildStartedTime,
                                     buildRequestMetaData,

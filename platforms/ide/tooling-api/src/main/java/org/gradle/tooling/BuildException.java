@@ -16,10 +16,7 @@
 package org.gradle.tooling;
 
 import org.gradle.api.Incubating;
-import org.gradle.tooling.events.problems.ProblemReport;
-
-import java.util.List;
-import java.util.Map;
+import org.gradle.tooling.internal.consumer.AbstractLongRunningOperation;
 
 /**
  * Thrown when a Gradle build fails or when a model cannot be built.
@@ -37,7 +34,7 @@ public class BuildException extends GradleConnectionException {
      * @since 8.11
      */
     @Incubating
-    public BuildException(String message, Throwable throwable, Map<Failure, List<ProblemReport>> problems) {
-        super(message, throwable, problems);
+    public BuildException(String message, Throwable throwable, AbstractLongRunningOperation operation) {
+        super(message, throwable, operation);
     }
 }

@@ -18,35 +18,53 @@ package org.gradle.internal.buildtree;
 
 import com.google.common.collect.ImmutableList;
 import org.gradle.api.invocation.Gradle;
+import org.gradle.api.problems.internal.DefaultProblemToFailureAssociationProgressDetails;
+import org.gradle.api.problems.internal.InternalProblems;
+import org.gradle.api.problems.internal.Problem;
 import org.gradle.initialization.exception.ExceptionAnalyser;
 import org.gradle.initialization.layout.BuildLayout;
 import org.gradle.internal.InternalBuildAdapter;
 import org.gradle.internal.invocation.BuildAction;
+import org.gradle.internal.operations.BuildOperationProgressEventEmitter;
 import org.gradle.problems.buildtree.ProblemReporter;
 import org.gradle.problems.buildtree.ProblemReporter.ProblemConsumer;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 public class ProblemReportingBuildActionRunner implements BuildActionRunner {
     private final BuildActionRunner delegate;
     private final ExceptionAnalyser exceptionAnalyser;
     private final BuildLayout buildLayout;
     private final List<? extends ProblemReporter> reporters;
+    private final BuildOperationProgressEventEmitter eventEmitter;
+    private final InternalProblems problemsService;
 
-    public ProblemReportingBuildActionRunner(BuildActionRunner delegate, ExceptionAnalyser exceptionAnalyser, BuildLayout buildLayout, List<? extends ProblemReporter> reporters) {
+    public ProblemReportingBuildActionRunner(BuildActionRunner delegate, ExceptionAnalyser exceptionAnalyser, BuildLayout buildLayout, List<? extends ProblemReporter> reporters, BuildOperationProgressEventEmitter eventEmitter, InternalProblems problemsService) {
         this.delegate = delegate;
         this.exceptionAnalyser = exceptionAnalyser;
         this.buildLayout = buildLayout;
         this.reporters = ImmutableList.sortedCopyOf(Comparator.comparing(ProblemReporter::getId), reporters);
+        this.eventEmitter = eventEmitter;
+        this.problemsService = problemsService;
     }
 
     @Override
     public Result run(BuildAction action, BuildTreeLifecycleController buildController) {
         RootProjectBuildDirCollectingListener rootProjectBuildDirListener = getRootProjectBuildDirCollectingListener(buildController);
         Result result = delegate.run(action, buildController);
+
+        // TODO (donat) just send something; we move it later to near the end of the build
+        Map<Throwable, Collection<Problem>> problemMap = problemsService.getProblemsForThrowables().asMap();
+        // after the build we send a summary event
+
+        if (result.getBuildFailure() != null) {
+            eventEmitter.emitNowForCurrent(new DefaultProblemToFailureAssociationProgressDetails(problemMap, result.getBuildFailure()));
+        }
 
         File rootProjectBuildDir = rootProjectBuildDirListener.rootProjectBuildDir;
         List<Throwable> failures = reportProblems(rootProjectBuildDir);

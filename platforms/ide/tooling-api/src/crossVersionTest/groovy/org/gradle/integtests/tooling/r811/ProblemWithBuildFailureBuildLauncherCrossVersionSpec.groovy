@@ -19,12 +19,14 @@ package org.gradle.integtests.tooling.r811
 import org.gradle.integtests.tooling.fixture.TargetGradleVersion
 import org.gradle.integtests.tooling.fixture.ToolingApiSpecification
 import org.gradle.integtests.tooling.fixture.ToolingApiVersion
+import org.gradle.tooling.Failure
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.ResultHandler
 import org.gradle.tooling.events.OperationType
 import org.gradle.tooling.events.ProgressEvent
 import org.gradle.tooling.events.ProgressListener
-import org.gradle.tooling.events.problems.ProblemEvent
+import org.gradle.tooling.events.problems.ProblemReport
+import org.gradle.tooling.events.problems.ProblemToFailureEvent
 
 @ToolingApiVersion('>=8.11')
 @TargetGradleVersion('>=8.11')
@@ -66,13 +68,16 @@ class ProblemWithBuildFailureBuildLauncherCrossVersionSpec extends ToolingApiSpe
         def resultHandler = new FailureCollectingResultHandler()
 
         when:
+        ProblemProgressListener listener = new ProblemProgressListener()
+        Map<Failure, Collection<ProblemReport>> reports
         withConnection { connection ->
             connection.newBuild()
                 .forTasks("c")
-                .addProgressListener(new ProblemProgressListener(), OperationType.PROBLEMS)
+                .addProgressListener(listener, OperationType.PROBLEMS)
+                //.addJvmArguments("-agentlib:jdwp=transport=dt_socket,server=n,address=*:5008,suspend=y")
                 .run(resultHandler)
         }
-        def reports = (resultHandler.failure as GradleConnectionException).problemReports()
+        reports = listener.event?.problemsForFailures
 
         then:
         reports.size() == 1
@@ -95,9 +100,12 @@ class ProblemWithBuildFailureBuildLauncherCrossVersionSpec extends ToolingApiSpe
 
     class ProblemProgressListener implements ProgressListener {
 
+        ProblemToFailureEvent event
+
         @Override
         void statusChanged(ProgressEvent event) {
-            if (event instanceof ProblemEvent) {
+            if (event instanceof ProblemToFailureEvent) {
+                this.event = event
             }
         }
     }

@@ -18,9 +18,10 @@ package org.gradle.tooling;
 import com.google.common.collect.ImmutableMap;
 import org.gradle.api.Incubating;
 import org.gradle.tooling.events.problems.ProblemReport;
+import org.gradle.tooling.internal.consumer.AbstractLongRunningOperation;
+import org.gradle.tooling.internal.consumer.BuildFailedProgressListener;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -29,16 +30,16 @@ import java.util.Map;
  * @since 1.0-milestone-3
  */
 public class GradleConnectionException extends RuntimeException {
-    private final Map<Failure, List<ProblemReport>> problemReports;
+    private final AbstractLongRunningOperation operation;
 
     public GradleConnectionException(String message) {
         super(message);
-        this.problemReports = Collections.emptyMap();
+        this.operation = null;
     }
 
     public GradleConnectionException(String message, Throwable throwable) {
         super(message, throwable);
-        this.problemReports = Collections.emptyMap();
+        this.operation = null;
     }
 
     /**
@@ -47,9 +48,9 @@ public class GradleConnectionException extends RuntimeException {
      * @since 8.11
      */
     @Incubating
-    public GradleConnectionException(String message, Throwable throwable, Map<Failure, List<ProblemReport>> problems) {
+    public GradleConnectionException(String message, Throwable throwable, AbstractLongRunningOperation operation) {
         super(message, throwable);
-        this.problemReports = ImmutableMap.copyOf(problems);
+        this.operation = operation;
     }
 
     /**
@@ -59,7 +60,14 @@ public class GradleConnectionException extends RuntimeException {
      * @since 8.11
      */
     @Incubating
-    public Map<Failure, List<ProblemReport>> problemReports() {
-        return problemReports;
+    public Map<Failure, Collection<ProblemReport>> problemReports() {
+        if (operation == null) {
+            return ImmutableMap.of();
+        }
+        BuildFailedProgressListener listener = operation.buildFailedProgressListener;
+        if (listener == null) {
+            return ImmutableMap.of();
+        }
+        return listener.getProblems();
     }
 }
