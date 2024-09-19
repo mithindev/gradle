@@ -64,7 +64,7 @@ public class DefaultJavaForkOptions extends DefaultProcessForkOptions implements
         this.jvmArgs = new ArrayList<>();
         this.jvmArgumentProviders = objectFactory.listProperty(CommandLineArgumentProvider.class);
         this.systemProperties = new LinkedHashMap<>();
-        this.bootstrapClasspath = objectFactory.fileCollection();
+        this.bootstrapClasspath = fileCollectionFactory.configurableFiles();
         this.minHeapSize = objectFactory.property(String.class);
         this.maxHeapSize = objectFactory.property(String.class);
         this.debugOptions = debugOptions;
@@ -247,6 +247,18 @@ public class DefaultJavaForkOptions extends DefaultProcessForkOptions implements
     @Override
     public void checkDebugConfiguration(Iterable<?> arguments) {
         JvmOptions.checkDebugConfiguration(getDebugOptions(), arguments);
+    }
+
+    @Override
+    public JvmForkOptions toEffectiveJvmForkOptions() {
+        JvmOptions jvmOptions = new JvmOptions(fileCollectionFactory, objectFactory.newInstance(DefaultJavaDebugOptions.class, objectFactory));
+        jvmOptions.copyFrom(this);
+        return new JvmForkOptions(
+            getExecutable(),
+            getWorkingDir(),
+            getEnvironment(),
+            jvmOptions
+        );
     }
 
     @Override

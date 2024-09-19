@@ -216,6 +216,10 @@ public class JvmOptions {
     }
 
     public void checkDebugConfiguration(Iterable<?> arguments) {
+        checkDebugConfiguration(debugOptions, arguments);
+    }
+
+    public static void checkDebugConfiguration(JavaDebugOptions debugOptions, Iterable<?> arguments) {
         List<String> debugArgs = collectDebugArgs(arguments);
         if (!debugArgs.isEmpty() && debugOptions.getEnabled().get()) {
             LOGGER.warn("Debug configuration ignored in favor of the supplied JVM arguments: " + debugArgs);
@@ -376,10 +380,13 @@ public class JvmOptions {
         return debugOptions;
     }
 
-    public void copyFrom(JavaForkOptions source) {
+    public void copyFrom(JavaForkOptionsInternal source) {
         setAllJvmArgs(Collections.emptyList());
         jvmArgs(source.getJvmArgs());
         source.getJvmArgumentProviders().get().forEach(provider -> jvmArgs(provider.asArguments()));
+        if (source.getExtraJvmArgs() != null) {
+            setExtraJvmArgs(source.getExtraJvmArgs());
+        }
         systemProperties(source.getSystemProperties());
         minHeapSize = source.getMinHeapSize().getOrNull();
         maxHeapSize = source.getMaxHeapSize().getOrNull();
