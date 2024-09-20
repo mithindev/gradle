@@ -25,8 +25,8 @@ import org.gradle.api.problems.ProblemGroup;
 import org.gradle.api.problems.ProblemId;
 import org.gradle.api.problems.Severity;
 import org.gradle.api.problems.internal.AdditionalData;
+import org.gradle.api.problems.internal.DefaultBuildFailureWithProblemsProgressDetails;
 import org.gradle.api.problems.internal.DefaultProblemProgressDetails;
-import org.gradle.api.problems.internal.DefaultProblemToFailureAssociationProgressDetails;
 import org.gradle.api.problems.internal.DeprecationData;
 import org.gradle.api.problems.internal.DocLink;
 import org.gradle.api.problems.internal.FileLocation;
@@ -117,7 +117,7 @@ public class ProblemsProgressEventConsumer extends ClientForwardingBuildOperatio
                 problemsForThrowables.put(exception, problem);
             }
             return Optional.of(createProblemEvent(buildOperationId, problem));
-        } else if (details instanceof DefaultProblemToFailureAssociationProgressDetails) {
+        } else if (details instanceof DefaultBuildFailureWithProblemsProgressDetails) {
             System.err.println("getting started");
         }
         return empty();

@@ -19,9 +19,9 @@ package org.gradle.tooling.internal.provider.runner;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import org.gradle.api.NonNullApi;
+import org.gradle.api.problems.internal.BuildFailureWithProblemsProgressDetails;
 import org.gradle.api.problems.internal.Problem;
 import org.gradle.api.problems.internal.ProblemAwareFailure;
-import org.gradle.api.problems.internal.ProblemToFailureAssociationProgressDetails;
 import org.gradle.internal.build.event.BuildEventSubscriptions;
 import org.gradle.internal.build.event.types.AbstractOperationResult;
 import org.gradle.internal.build.event.types.DefaultBuildBuildDescriptor;
@@ -99,8 +99,8 @@ class RunBuildBuildOperationMapper implements BuildOperationMapper<RunBuildBuild
     public InternalProgressEvent createProgressEvent(DefaultBuildBuildDescriptor descriptor, OperationProgressEvent progressEvent) {
         descriptor.getId();
         Object progressEventDetails = progressEvent.getDetails();
-        if (progressEventDetails instanceof ProblemToFailureAssociationProgressDetails) {
-            ProblemToFailureAssociationProgressDetails details = (ProblemToFailureAssociationProgressDetails) progressEventDetails;
+        if (progressEventDetails instanceof BuildFailureWithProblemsProgressDetails) {
+            BuildFailureWithProblemsProgressDetails details = (BuildFailureWithProblemsProgressDetails) progressEventDetails;
             Throwable failure = details.getBuildFailure();
             Map<Throwable, Collection<Problem>> problemsForThrowables = details.getProblemsForThrowables();
 

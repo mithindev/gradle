@@ -19,10 +19,23 @@ package org.gradle.api.problems.internal;
 import java.util.Collection;
 import java.util.Map;
 
-/*
- * Marker interface required by the build operations infrastructure.
- */
-public interface ProblemToFailureAssociationProgressDetails {
-    Map<Throwable, Collection<Problem>> getProblemsForThrowables();
-    Throwable getBuildFailure();
+public class DefaultBuildFailureWithProblemsProgressDetails implements BuildFailureWithProblemsProgressDetails {
+
+    private final Map<Throwable, Collection<Problem>> problems;
+    private final Throwable buildFailure;
+
+    public DefaultBuildFailureWithProblemsProgressDetails(Map<Throwable, Collection<Problem>> problems, Throwable buildFailure) {
+        this.problems = problems;
+        this.buildFailure = buildFailure;
+    }
+
+    @Override
+    public Map<Throwable, Collection<Problem>> getProblemsForThrowables() {
+        return problems;
+    }
+
+    @Override
+    public Throwable getBuildFailure() {
+        return buildFailure;
+    }
 }

@@ -18,7 +18,7 @@ package org.gradle.internal.buildtree;
 
 import com.google.common.collect.ImmutableList;
 import org.gradle.api.invocation.Gradle;
-import org.gradle.api.problems.internal.DefaultProblemToFailureAssociationProgressDetails;
+import org.gradle.api.problems.internal.DefaultBuildFailureWithProblemsProgressDetails;
 import org.gradle.api.problems.internal.InternalProblems;
 import org.gradle.api.problems.internal.Problem;
 import org.gradle.initialization.exception.ExceptionAnalyser;
@@ -57,18 +57,18 @@ public class ProblemReportingBuildActionRunner implements BuildActionRunner {
     public Result run(BuildAction action, BuildTreeLifecycleController buildController) {
         RootProjectBuildDirCollectingListener rootProjectBuildDirListener = getRootProjectBuildDirCollectingListener(buildController);
         Result result = delegate.run(action, buildController);
-
-        // TODO (donat) just send something; we move it later to near the end of the build
-        Map<Throwable, Collection<Problem>> problemMap = problemsService.getProblemsForThrowables().asMap();
-        // after the build we send a summary event
-
-        if (result.getBuildFailure() != null) {
-            eventEmitter.emitNowForCurrent(new DefaultProblemToFailureAssociationProgressDetails(problemMap, result.getBuildFailure()));
+        if (result.getBuildFailure()!= null) {
+            emitBuildFailureWithProblemsProgressEvent(result.getBuildFailure());
         }
-
         File rootProjectBuildDir = rootProjectBuildDirListener.rootProjectBuildDir;
         List<Throwable> failures = reportProblems(rootProjectBuildDir);
         return result.addFailures(failures);
+    }
+
+    private void emitBuildFailureWithProblemsProgressEvent(Throwable buildFailure) {
+        // TODO (donat) sanitize failures with exceptionAnalyser
+        Map<Throwable, Collection<Problem>> problems = problemsService.getProblemsForThrowables().asMap();
+        eventEmitter.emitNowForCurrent(new DefaultBuildFailureWithProblemsProgressDetails(problems, buildFailure));
     }
 
     private List<Throwable> reportProblems(File rootProjectBuildDir) {
