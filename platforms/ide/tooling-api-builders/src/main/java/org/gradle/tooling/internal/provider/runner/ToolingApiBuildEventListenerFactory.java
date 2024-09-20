@@ -95,8 +95,6 @@ public class ToolingApiBuildEventListenerFactory implements BuildEventListenerFa
         TaskOperationMapper taskOperationMapper = new TaskOperationMapper(postProcessors, taskOriginTracker, operationDependenciesResolver);
         operationDependenciesResolver.addLookup(taskOperationMapper);
 
-        ProblemsProgressEventConsumer problemConsumer = (buildListener instanceof ProblemsProgressEventConsumer) ? (ProblemsProgressEventConsumer) buildListener : null;
-
         List<BuildOperationMapper<?, ?>> mappers = ImmutableList.of(
             new FileDownloadOperationMapper(),
             new TestOperationMapper(testTaskTracker),
@@ -104,7 +102,7 @@ public class ToolingApiBuildEventListenerFactory implements BuildEventListenerFa
             taskOperationMapper,
             transformOperationMapper,
             new WorkItemOperationMapper(),
-            new RunBuildBuildOperationMapper(problemConsumer, idFactory)
+            new RunBuildBuildOperationMapper(idFactory)
         );
         return new ClientBuildEventGenerator(progressEventConsumer, subscriptions, mappers, buildListener);
     }

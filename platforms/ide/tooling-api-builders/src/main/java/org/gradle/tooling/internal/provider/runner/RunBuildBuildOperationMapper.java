@@ -26,14 +26,12 @@ import org.gradle.internal.build.event.BuildEventSubscriptions;
 import org.gradle.internal.build.event.types.AbstractOperationResult;
 import org.gradle.internal.build.event.types.DefaultBuildBuildDescriptor;
 import org.gradle.internal.build.event.types.DefaultFailure;
-import org.gradle.internal.build.event.types.DefaultFailureWithProblemResult;
 import org.gradle.internal.build.event.types.DefaultOperationFinishedProgressEvent;
 import org.gradle.internal.build.event.types.DefaultOperationStartedProgressEvent;
 import org.gradle.internal.build.event.types.DefaultProblemDetails;
 import org.gradle.internal.build.event.types.DefaultProblemToFailureDescriptor;
 import org.gradle.internal.build.event.types.DefaultProblemToFailureDetails;
 import org.gradle.internal.build.event.types.DefaultProblemToFailureEvent;
-import org.gradle.internal.build.event.types.DefaultSuccessResult;
 import org.gradle.internal.operations.BuildOperationDescriptor;
 import org.gradle.internal.operations.BuildOperationIdFactory;
 import org.gradle.internal.operations.OperationFinishEvent;
@@ -62,13 +60,9 @@ import java.util.stream.Collectors;
 @NonNullApi
 class RunBuildBuildOperationMapper implements BuildOperationMapper<RunBuildBuildOperationType.Details, DefaultBuildBuildDescriptor> {
 
-    @Nullable
-    private final ProblemsProgressEventConsumer problemConsumer;
-
     private final Supplier<OperationIdentifier> operationIdentifierSupplier;
 
-    public RunBuildBuildOperationMapper(@Nullable ProblemsProgressEventConsumer problemConsumer, BuildOperationIdFactory idFactory) {
-        this.problemConsumer = problemConsumer;
+    public RunBuildBuildOperationMapper(BuildOperationIdFactory idFactory) {
         this.operationIdentifierSupplier = () -> new OperationIdentifier(idFactory.nextId());
     }
 
@@ -136,23 +130,8 @@ class RunBuildBuildOperationMapper implements BuildOperationMapper<RunBuildBuild
         return new DefaultOperationFinishedProgressEvent(finishEvent.getEndTime(), descriptor, toOperationResultWithProblems(finishEvent));
     }
 
-    private AbstractOperationResult toOperationResultWithProblems(OperationFinishEvent result) {
-        Throwable failure = result.getFailure();
-        long startTime = result.getStartTime();
-        long endTime = result.getEndTime();
-        if (failure != null) {
-            Multimap<InternalFailure, InternalBasicProblemDetailsVersion3> problems = ArrayListMultimap.create();
-            InternalFailure rootFailure = DefaultFailure.fromThrowable(failure, (throwable, internalFailure) -> {
-                problems.putAll(internalFailure, toProblemDetails(problemConsumer.getProblemsForThrowable().get(throwable)));
-                if (throwable instanceof ProblemAwareFailure) {
-                    List<DefaultProblemDetails> details = toProblemDetails(((ProblemAwareFailure) throwable).getProblems());
-                    problems.putAll(internalFailure, details);
-                }
-            });
-            HashMap<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> problemsMap = new HashMap<>(problems.asMap()); // HashMap to make it serializable
-            return new DefaultFailureWithProblemResult(startTime, endTime, Collections.singletonList(rootFailure), problemsMap);
-        }
-        return new DefaultSuccessResult(startTime, endTime);
+    private static AbstractOperationResult toOperationResultWithProblems(OperationFinishEvent result) {
+        return ClientForwardingBuildOperationListener.toOperationResult(result);
     }
 
     private static List<DefaultProblemDetails> toProblemDetails(Collection<Problem> p) {

@@ -19,10 +19,11 @@ package org.gradle.integtests.tooling.r811
 import org.gradle.integtests.tooling.fixture.TargetGradleVersion
 import org.gradle.integtests.tooling.fixture.ToolingApiSpecification
 import org.gradle.integtests.tooling.fixture.ToolingApiVersion
+import org.gradle.tooling.BuildException
+import org.gradle.tooling.BuildFailureHandler
 import org.gradle.tooling.Failure
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.ResultHandler
-import org.gradle.tooling.events.OperationType
 import org.gradle.tooling.events.ProgressEvent
 import org.gradle.tooling.events.ProgressListener
 import org.gradle.tooling.events.problems.ProblemReport
@@ -32,6 +33,13 @@ import org.gradle.tooling.events.problems.ProblemToFailureEvent
 @TargetGradleVersion('>=8.11')
 class ProblemWithBuildFailureBuildLauncherCrossVersionSpec extends ToolingApiSpecification {
 
+    TestBuildFailedHandler failureHandler
+
+    def setup() {
+        this.failureHandler = new TestBuildFailedHandler()
+    }
+
+    @TargetGradleVersion('<8.11')
     def "clients won't receive problems associated to build failures if they are not subscribed to problems"() {
         given:
         buildFile << """
@@ -45,17 +53,18 @@ class ProblemWithBuildFailureBuildLauncherCrossVersionSpec extends ToolingApiSpe
         withConnection { connection ->
             connection.newBuild()
                 .forTasks("c")
+                .withBuildFailureHandler(failureHandler)
                 .run(resultHandler)
         }
 
         then:
-        (resultHandler.failure as GradleConnectionException).problemReports().size() == 0
+        failureHandler.success == false
+        failureHandler.failure == null
+        failureHandler.problemReports == null
     }
 
 
     def "clients receive single problem report associated with build failure"() {
-        // TODO (donat) This is clunky. Clients may want to get all problems and the ones associated with build failures.
-        // Reporting the latter one should not require a seemingly random listener registration.
         given:
         settingsFile << """
             rootProject.name = 'root'
@@ -65,24 +74,22 @@ class ProblemWithBuildFailureBuildLauncherCrossVersionSpec extends ToolingApiSpe
                 id 'java'
             }
         """
-        def resultHandler = new FailureCollectingResultHandler()
 
         when:
-        ProblemProgressListener listener = new ProblemProgressListener()
-        Map<Failure, Collection<ProblemReport>> reports
         withConnection { connection ->
             connection.newBuild()
                 .forTasks("c")
-                .addProgressListener(listener, OperationType.PROBLEMS)
-                //.addJvmArguments("-agentlib:jdwp=transport=dt_socket,server=n,address=*:5008,suspend=y")
-                .run(resultHandler)
+                .withBuildFailureHandler(failureHandler)
+                .run()
         }
-        reports = listener.event?.problemsForFailures
 
         then:
-        reports.size() == 1
-        reports.entrySet().iterator().next().key.message == 'Task \'c\' is ambiguous in root project \'root\'. Candidates are: \'check\', \'classes\', \'clean\', \'components\'.'
-        reports.entrySet().iterator().next().value[0].definition.id.displayName == 'Ambiguous matches'
+        thrown(BuildException)
+        failureHandler.success == false
+        //failureHandler.failure != null // TODO (donat) maybe we should association the event to root build operation
+        failureHandler.problemReports.size() == 1
+        failureHandler.problemReports.entrySet().iterator().next().key.message == 'Task \'c\' is ambiguous in root project \'root\'. Candidates are: \'check\', \'classes\', \'clean\', \'components\'.'
+        failureHandler.problemReports.entrySet().iterator().next().value[0].definition.id.displayName == 'Ambiguous matches'
     }
 
     class FailureCollectingResultHandler implements ResultHandler<Void> {
@@ -107,6 +114,24 @@ class ProblemWithBuildFailureBuildLauncherCrossVersionSpec extends ToolingApiSpe
             if (event instanceof ProblemToFailureEvent) {
                 this.event = event
             }
+        }
+    }
+
+    class TestBuildFailedHandler implements BuildFailureHandler {
+
+        boolean success = false
+        Failure failure = null
+        Map<Failure, Collection<ProblemReport>> problemReports = null
+
+        @Override
+        void onSuccess() {
+            success = true
+        }
+
+        @Override
+        void onFailure(Failure failure, Map<Failure, Collection<ProblemReport>> problemReports) {
+            this.failure = failure
+            this.problemReports = problemReports
         }
     }
 }

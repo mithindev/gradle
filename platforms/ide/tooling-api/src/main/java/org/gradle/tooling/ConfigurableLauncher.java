@@ -170,4 +170,11 @@ public interface ConfigurableLauncher<T extends ConfigurableLauncher<T>> extends
      */
     @Override
     T withCancellationToken(CancellationToken cancellationToken);
+
+    /**
+     * {@inheritDoc}
+     * @since 8.11
+     */
+    @Override
+    T withBuildFailureHandler(BuildFailureHandler buildFailureHandler);
 }

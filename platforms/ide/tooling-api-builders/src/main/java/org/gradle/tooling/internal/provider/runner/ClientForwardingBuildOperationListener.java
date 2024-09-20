@@ -54,7 +54,6 @@ class ClientForwardingBuildOperationListener implements BuildOperationListener {
 
     @Override
     public void progress(OperationIdentifier buildOperationId, OperationProgressEvent progressEvent) {
-        // System.err.println(progressEvent);
     }
 
     @Override

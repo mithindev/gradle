@@ -317,4 +317,14 @@ public interface LongRunningOperation {
      * @since 2.1
      */
     LongRunningOperation withCancellationToken(CancellationToken cancellationToken);
+
+    /**
+     * TODO Sets the build failure handler to use to handle build failures.
+     *
+     * @param buildFailureHandler the build failure handler0p-0
+     * @return this
+     * @since 8.11
+     */
+    @Incubating
+    LongRunningOperation withBuildFailureHandler(BuildFailureHandler buildFailureHandler);
 }

@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-// TODO (donat) Find a better name for this class
+// TODO (donat) delete
 @NonNullApi
 public class DefaultFailureWithProblemResult extends DefaultFailureResult implements InternalFailureWithProblemsResult {
 

@@ -19,7 +19,6 @@ package org.gradle.tooling.internal.provider.runner;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 import org.gradle.api.NonNullApi;
 import org.gradle.api.problems.ProblemGroup;
 import org.gradle.api.problems.ProblemId;
@@ -89,9 +88,6 @@ public class ProblemsProgressEventConsumer extends ClientForwardingBuildOperatio
     private final Supplier<OperationIdentifier> operationIdentifierSupplier;
     private final AggregatingProblemConsumer aggregator;
 
-    // TODO (donat) We already cache a subset of problems in AggregatingProblemConsumer; we should look into how to avoid this duplication
-    private final Multimap<Throwable, Problem> problemsForThrowables = Multimaps.synchronizedMultimap(HashMultimap.<Throwable, Problem>create());
-
     ProblemsProgressEventConsumer(ProgressEventConsumer progressEventConsumer, Supplier<OperationIdentifier> operationIdentifierSupplier, AggregatingProblemConsumer aggregator) {
         super(progressEventConsumer);
         this.operationIdentifierSupplier = operationIdentifierSupplier;
@@ -106,7 +102,7 @@ public class ProblemsProgressEventConsumer extends ClientForwardingBuildOperatio
     }
 
     public Multimap<Throwable, Problem> getProblemsForThrowable() {
-        return problemsForThrowables;
+        return HashMultimap.<Throwable, Problem>create();
     }
 
     private Optional<InternalProblemEventVersion2> createProblemEvent(OperationIdentifier buildOperationId, @Nullable Object details) {
@@ -114,7 +110,7 @@ public class ProblemsProgressEventConsumer extends ClientForwardingBuildOperatio
             Problem problem = ((DefaultProblemProgressDetails) details).getProblem();
             Throwable exception = problem.getException();
             if (exception != null) {
-                problemsForThrowables.put(exception, problem);
+                //problemsForThrowables.put(exception, problem);
             }
             return Optional.of(createProblemEvent(buildOperationId, problem));
         } else if (details instanceof DefaultBuildFailureWithProblemsProgressDetails) {
