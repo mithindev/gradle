@@ -28,8 +28,7 @@ import java.util.List;
  * @since 8.11
  */
 @Incubating
-public interface ProblemReport {
-
+public interface ProblemReport { // TODO (donat) consider renaming to Problem
 
     /**
      * Returns the problem definition.

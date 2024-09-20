@@ -39,6 +39,13 @@ class ProblemWithBuildFailureBuildLauncherCrossVersionSpec extends ToolingApiSpe
         this.failureHandler = new TestBuildFailedHandler()
     }
 
+    // old version success
+    // old version failure
+    // new version success
+    // new version single failure
+    // new version multiple failures
+
+
     @TargetGradleVersion('<8.11')
     def "clients won't receive problems associated to build failures if they are not subscribed to problems"() {
         given:

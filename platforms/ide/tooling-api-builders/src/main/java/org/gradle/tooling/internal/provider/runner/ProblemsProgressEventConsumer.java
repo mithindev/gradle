@@ -16,15 +16,12 @@
 
 package org.gradle.tooling.internal.provider.runner;
 
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Multimap;
 import org.gradle.api.NonNullApi;
 import org.gradle.api.problems.ProblemGroup;
 import org.gradle.api.problems.ProblemId;
 import org.gradle.api.problems.Severity;
 import org.gradle.api.problems.internal.AdditionalData;
-import org.gradle.api.problems.internal.DefaultBuildFailureWithProblemsProgressDetails;
 import org.gradle.api.problems.internal.DefaultProblemProgressDetails;
 import org.gradle.api.problems.internal.DeprecationData;
 import org.gradle.api.problems.internal.DocLink;
@@ -101,20 +98,10 @@ public class ProblemsProgressEventConsumer extends ClientForwardingBuildOperatio
             .ifPresent(aggregator::emit);
     }
 
-    public Multimap<Throwable, Problem> getProblemsForThrowable() {
-        return HashMultimap.<Throwable, Problem>create();
-    }
-
     private Optional<InternalProblemEventVersion2> createProblemEvent(OperationIdentifier buildOperationId, @Nullable Object details) {
         if (details instanceof DefaultProblemProgressDetails) {
             Problem problem = ((DefaultProblemProgressDetails) details).getProblem();
-            Throwable exception = problem.getException();
-            if (exception != null) {
-                //problemsForThrowables.put(exception, problem);
-            }
             return Optional.of(createProblemEvent(buildOperationId, problem));
-        } else if (details instanceof DefaultBuildFailureWithProblemsProgressDetails) {
-            System.err.println("getting started");
         }
         return empty();
     }
