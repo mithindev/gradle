@@ -17,10 +17,8 @@
 package org.gradle.tooling;
 
 import org.gradle.api.Incubating;
-import org.gradle.tooling.events.problems.ProblemReport;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 
 /**
  * TODO A handler for build failures.
@@ -30,7 +28,18 @@ import java.util.Map;
 @Incubating
 public interface BuildFailureHandler {
 
+    /**
+     * Called when the build was successful.
+     *
+     * @since 8.11
+     */
     void onSuccess();
 
-    void onFailure(Failure failure, Map<Failure, Collection<ProblemReport>> problemReports);
+    /**
+     * Called when the build failed.
+     *
+     * @param failures The list of failures that occurred during the build.
+     * @since 8.11
+     */
+    void onFailure(List<Failure> failures);
 }

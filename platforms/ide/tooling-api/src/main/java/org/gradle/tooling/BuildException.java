@@ -15,9 +15,6 @@
  */
 package org.gradle.tooling;
 
-import org.gradle.api.Incubating;
-import org.gradle.tooling.internal.consumer.AbstractLongRunningOperation;
-
 /**
  * Thrown when a Gradle build fails or when a model cannot be built.
  *
@@ -27,14 +24,5 @@ public class BuildException extends GradleConnectionException {
 
     public BuildException(String message, Throwable throwable) {
         super(message, throwable);
-    }
-
-    /**
-     * TODO document me.
-     * @since 8.11
-     */
-    @Incubating
-    public BuildException(String message, Throwable throwable, AbstractLongRunningOperation operation) {
-        super(message, throwable, operation);
     }
 }

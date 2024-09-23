@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 the original author or authors.
+ * Copyright 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,29 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.tooling.events.problems;
 
-import org.gradle.api.Incubating;
+package org.gradle.tooling.internal.consumer;
+
 import org.gradle.api.NonNullApi;
 import org.gradle.tooling.Failure;
+import org.gradle.tooling.ProblemAwareFailure;
+import org.gradle.tooling.events.problems.ProblemReport;
 
 import java.util.List;
 
-/**
- *
- * Represents build failures and their associated problems
- *
- * @since 8.11
- */
 @NonNullApi
-@Incubating
-public interface ProblemToFailureEvent extends ProblemEvent {
+public final class DefaultProblemAwareFailure extends DefaultFailure implements ProblemAwareFailure {
 
-    /**
-     * Returns the list of failures that are associated with the problems
-     *
-     * @return the list of failures
-     * @since 8.11
-     */
-    List<Failure> getFailures();
+    private final List<ProblemReport> problems;
+
+    public DefaultProblemAwareFailure(String message, String description, List<? extends Failure> causes, List<ProblemReport> problems) {
+        super(message, description, causes);
+        this.problems = problems;
+    }
+
+    @Override
+    public List<ProblemReport> getProblems() {
+        return problems;
+    }
 }

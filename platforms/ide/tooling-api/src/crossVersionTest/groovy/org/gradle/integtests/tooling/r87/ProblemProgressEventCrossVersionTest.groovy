@@ -157,7 +157,7 @@ class ProblemProgressEventCrossVersionTest extends ToolingApiSpecification {
         thrown(BuildException)
         def problems = listener.problems
         validateCompilationProblem(problems, buildFile)
-        problems[0].failure.failure.message == "Could not compile build file '$buildFile.absolutePath'."
+        problems[0].failure.getFailures.message == "Could not compile build file '$buildFile.absolutePath'."
     }
 
     static void validateCompilationProblem(List<ProblemEvent> problems, TestFile buildFile) {

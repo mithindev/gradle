@@ -15,59 +15,18 @@
  */
 package org.gradle.tooling;
 
-import com.google.common.collect.ImmutableMap;
-import org.gradle.api.Incubating;
-import org.gradle.tooling.events.problems.ProblemReport;
-import org.gradle.tooling.internal.consumer.AbstractLongRunningOperation;
-import org.gradle.tooling.internal.consumer.BuildFailedProgressListener;
-
-import java.util.Collection;
-import java.util.Map;
-
 /**
  * Thrown when there is some problem using a Gradle connection.
  *
  * @since 1.0-milestone-3
  */
 public class GradleConnectionException extends RuntimeException {
-    private final AbstractLongRunningOperation operation;
 
     public GradleConnectionException(String message) {
         super(message);
-        this.operation = null;
     }
 
     public GradleConnectionException(String message, Throwable throwable) {
         super(message, throwable);
-        this.operation = null;
-    }
-
-    /**
-     * TODO description.
-     *
-     * @since 8.11
-     */
-    @Incubating
-    public GradleConnectionException(String message, Throwable throwable, AbstractLongRunningOperation operation) {
-        super(message, throwable);
-        this.operation = operation;
-    }
-
-    /**
-     * TODO description.
-     *
-     * @return the reported problems for this failure.
-     * @since 8.11
-     */
-    @Incubating
-    public Map<Failure, Collection<ProblemReport>> problemReports() {
-        if (operation == null) {
-            return ImmutableMap.of();
-        }
-        BuildFailedProgressListener listener = operation.buildFailedProgressListener;
-        if (listener == null) {
-            return ImmutableMap.of();
-        }
-        return listener.getProblems();
     }
 }

@@ -219,8 +219,4 @@ public abstract class AbstractLongRunningOperation<T extends AbstractLongRunning
     public void copyFrom(ConsumerOperationParameters operationParameters) {
         operationParamsBuilder.copyFrom(operationParameters);
     }
-
-    protected ConnectionExceptionTransformer createConnectionExceptionTransformer(ConnectionExceptionTransformer.ConnectionFailureMessageProvider provider) {
-        return new FailureAwareConnectionExceptionTransformer(provider, this);
-    }
 }

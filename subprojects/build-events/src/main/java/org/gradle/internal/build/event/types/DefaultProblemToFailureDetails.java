@@ -17,33 +17,23 @@
 package org.gradle.internal.build.event.types;
 
 import org.gradle.api.NonNullApi;
-import org.gradle.tooling.internal.protocol.InternalBasicProblemDetailsVersion3;
 import org.gradle.tooling.internal.protocol.InternalFailure;
 import org.gradle.tooling.internal.protocol.problem.InternalProblemToFailureDetails;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 @NonNullApi
 public class DefaultProblemToFailureDetails implements InternalProblemToFailureDetails, Serializable {
 
     private final List<InternalFailure> failures;
-    private final Map<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> problems;
 
-    public DefaultProblemToFailureDetails(List<InternalFailure> failures, Map<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> problems) {
+    public DefaultProblemToFailureDetails(List<InternalFailure> failures) {
         this.failures = failures;
-        this.problems = problems;
     }
 
     @Override
     public List<InternalFailure> getFailures() {
         return failures;
-    }
-
-    @Override
-    public Map<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> getProblems() {
-        return problems;
     }
 }

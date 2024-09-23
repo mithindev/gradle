@@ -156,6 +156,7 @@ import org.gradle.tooling.events.work.internal.DefaultWorkItemStartEvent;
 import org.gradle.tooling.events.work.internal.DefaultWorkItemSuccessResult;
 import org.gradle.tooling.internal.consumer.DefaultFailure;
 import org.gradle.tooling.internal.consumer.DefaultFileComparisonTestAssertionFailure;
+import org.gradle.tooling.internal.consumer.DefaultProblemAwareFailure;
 import org.gradle.tooling.internal.consumer.DefaultTestAssertionFailure;
 import org.gradle.tooling.internal.consumer.DefaultTestFrameworkFailure;
 import org.gradle.tooling.internal.protocol.InternalBasicProblemDetailsVersion3;
@@ -176,7 +177,6 @@ import org.gradle.tooling.internal.protocol.InternalTestFrameworkFailure;
 import org.gradle.tooling.internal.protocol.events.InternalBinaryPluginIdentifier;
 import org.gradle.tooling.internal.protocol.events.InternalBuildPhaseDescriptor;
 import org.gradle.tooling.internal.protocol.events.InternalFailureResult;
-import org.gradle.tooling.internal.protocol.events.InternalFailureWithProblemsResult;
 import org.gradle.tooling.internal.protocol.events.InternalFileDownloadDescriptor;
 import org.gradle.tooling.internal.protocol.events.InternalFileDownloadResult;
 import org.gradle.tooling.internal.protocol.events.InternalIncrementalTaskResult;
@@ -229,6 +229,7 @@ import org.gradle.tooling.internal.protocol.problem.InternalLineInFileLocation;
 import org.gradle.tooling.internal.protocol.problem.InternalLocation;
 import org.gradle.tooling.internal.protocol.problem.InternalOffsetInFileLocation;
 import org.gradle.tooling.internal.protocol.problem.InternalPluginIdLocation;
+import org.gradle.tooling.internal.protocol.problem.InternalProblemAwareFailure;
 import org.gradle.tooling.internal.protocol.problem.InternalProblemCategory;
 import org.gradle.tooling.internal.protocol.problem.InternalProblemDetailsVersion2;
 import org.gradle.tooling.internal.protocol.problem.InternalProblemToFailureDetails;
@@ -239,7 +240,6 @@ import org.gradle.tooling.internal.protocol.problem.InternalTaskPathLocation;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -599,22 +599,15 @@ public class BuildProgressListenerAdapter implements InternalBuildProgressListen
     private @Nullable ProblemToFailureEvent toProblemToFailureEvent(InternalProblemEventVersion2 problemEvent, InternalProblemToFailureDescriptor descriptor) {
         InternalProblemDetailsVersion2 details = problemEvent.getDetails();
         if (details instanceof InternalProblemToFailureDetails) {
-            InternalProblemToFailureDetails problemToFailureDetails = (InternalProblemToFailureDetails) details;
-            Map<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> problems = problemToFailureDetails.getProblems();
-            Map<Failure, Collection<ProblemReport>> clientProblems = new HashMap<>();
-            for (Map.Entry<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> entry : problems.entrySet()) {
-                Failure key = toFailure(entry.getKey()); // TODO (donat) we should think about object equality in the tapi client side;
-                List<ProblemReport> value = new ArrayList<>(entry.getValue().size());
-                for (InternalBasicProblemDetailsVersion3 d : entry.getValue()) {
-                    value.add(createproblemReport(d));
-                }
-                clientProblems.put(key, value);
+            List<InternalFailure> failures = ((InternalProblemToFailureDetails) details).getFailures();
+            List<Failure> clientFailures = new ArrayList<>();
+            for (InternalFailure failure : failures) {
+                clientFailures.add(toFailure(failure));
             }
             return new DefaultProblemToFailureEvent(
                 problemEvent.getEventTime(),
                 getParentDescriptor(descriptor.getParentId()),
-                null,
-                clientProblems
+                clientFailures
             );
         }
         return null;
@@ -1125,22 +1118,6 @@ public class BuildProgressListenerAdapter implements InternalBuildProgressListen
     private static @Nullable OperationResult toResult(InternalOperationResult result) {
         if (result instanceof InternalSuccessResult) {
             return new DefaultOperationSuccessResult(result.getStartTime(), result.getEndTime());
-        } else if (result instanceof InternalFailureWithProblemsResult) {
-            // TODO (donat) MUST CONVERT to internalproblems
-            Map<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> problems = ((InternalFailureWithProblemsResult) result).getProblems();
-
-            Map<Failure, List<ProblemReport>> clientProblems = new HashMap<>();
-            for (Map.Entry<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> entry : problems.entrySet()) {
-                Failure key = toFailure(entry.getKey()); // TODO (donat) we should think about object equality in the tapi client side;
-                List<ProblemReport> value = new ArrayList<>(entry.getValue().size());
-                for (InternalBasicProblemDetailsVersion3 details : entry.getValue()) {
-                    value.add(createproblemReport(details));
-                }
-                clientProblems.put(key, value);
-            }
-
-            DefaultOperationFailureResult defaultOperationFailureResultWithProblems = new DefaultOperationFailureResult(result.getStartTime(), result.getEndTime(), toFailures(result.getFailures()), clientProblems);
-            return defaultOperationFailureResultWithProblems;
         } else if (result instanceof InternalFailureResult) {
             return new DefaultOperationFailureResult(result.getStartTime(), result.getEndTime(), toFailures(result.getFailures()));
         } else {
@@ -1160,6 +1137,20 @@ public class BuildProgressListenerAdapter implements InternalBuildProgressListen
     }
 
     private static Failure toFailure(InternalFailure origFailure) {
+        if (origFailure instanceof InternalProblemAwareFailure) {
+            InternalProblemAwareFailure problemAwareFailure = (InternalProblemAwareFailure) origFailure;
+            List<InternalBasicProblemDetailsVersion3> problems = problemAwareFailure.getProblems();
+            List<ProblemReport> clientProblems = new ArrayList<>(problems.size());
+            for (InternalBasicProblemDetailsVersion3 problem : problems) {
+                clientProblems.add(createproblemReport(problem));
+            }
+            return new DefaultProblemAwareFailure(
+                origFailure.getMessage(),
+                origFailure.getDescription(),
+                toFailures(origFailure.getCauses()),
+                clientProblems
+            );
+        } else
         if (origFailure instanceof InternalTestAssertionFailure) {
             if (origFailure instanceof InternalFileComparisonTestAssertionFailure) {
                 InternalTestAssertionFailure assertionFailure = (InternalTestAssertionFailure) origFailure;

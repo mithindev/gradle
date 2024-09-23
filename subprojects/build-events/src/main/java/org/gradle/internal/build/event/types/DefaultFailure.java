@@ -32,7 +32,7 @@ public class DefaultFailure implements Serializable, InternalFailure {
     private final String description;
     private final List<InternalFailure> causes;
 
-    private DefaultFailure(String message, String description, List<InternalFailure> causes) {
+    DefaultFailure(String message, String description, List<InternalFailure> causes) {
         this.message = message;
         this.description = description;
         this.causes = causes;

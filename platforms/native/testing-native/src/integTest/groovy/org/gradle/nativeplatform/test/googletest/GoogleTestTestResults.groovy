@@ -66,11 +66,11 @@ class GoogleTestTestResults {
         }
 
         List<String> getPassingTests() {
-            suiteNode.testcase.findAll({ it.failure.size() == 0 })*.@name.sort()
+            suiteNode.testcase.findAll({ it.getFailures.size() == 0 })*.@name.sort()
         }
 
         List<String> getFailingTests() {
-            suiteNode.testcase.findAll({ it.failure.size() != 0 })*.@name.sort()
+            suiteNode.testcase.findAll({ it.getFailures.size() != 0 })*.@name.sort()
         }
     }
 }

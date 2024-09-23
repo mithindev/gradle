@@ -16,15 +16,11 @@
 
 package org.gradle.tooling.internal.protocol.problem;
 
-import org.gradle.tooling.internal.protocol.InternalBasicProblemDetailsVersion3;
 import org.gradle.tooling.internal.protocol.InternalFailure;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-public interface InternalProblemToFailureDetails extends InternalProblemDetailsVersion2  {
+public interface InternalProblemToFailureDetails extends InternalProblemDetailsVersion2 {
 
     List<InternalFailure> getFailures(); // we probably don't need this method
-    Map<InternalFailure, Collection<InternalBasicProblemDetailsVersion3>> getProblems();
 }

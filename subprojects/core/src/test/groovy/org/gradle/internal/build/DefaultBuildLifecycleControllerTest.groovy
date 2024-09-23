@@ -225,7 +225,7 @@ class DefaultBuildLifecycleControllerTest extends Specification {
 
         then:
         1 * exceptionAnalyser.transform([failure]) >> transformedException
-        1 * buildListener.buildFinished({ it.failure == transformedException })
+        1 * buildListener.buildFinished({ it.getFailures == transformedException })
         finishResult.failures.empty
 
         when:
@@ -339,7 +339,7 @@ class DefaultBuildLifecycleControllerTest extends Specification {
 
         then:
         1 * exceptionAnalyser.transform([failure]) >> transformedException
-        1 * buildListener.buildFinished({ it.failure == transformedException })
+        1 * buildListener.buildFinished({ it.getFailures == transformedException })
         finishResult.failures.empty
 
         when:
@@ -391,7 +391,7 @@ class DefaultBuildLifecycleControllerTest extends Specification {
         def finishResult = controller.finishBuild(null)
 
         then:
-        1 * buildListener.buildFinished({ it.failure == null })
+        1 * buildListener.buildFinished({ it.getFailures == null })
         finishResult.failures.empty
 
         when:
@@ -423,7 +423,7 @@ class DefaultBuildLifecycleControllerTest extends Specification {
 
         then:
         1 * exceptionAnalyser.transform([failure]) >> transformedException
-        1 * buildListener.buildFinished({ it.failure == transformedException && it.action == "Build" })
+        1 * buildListener.buildFinished({ it.getFailures == transformedException && it.action == "Build" })
         finishResult.failures.empty
 
         when:
@@ -455,7 +455,7 @@ class DefaultBuildLifecycleControllerTest extends Specification {
 
         then:
         1 * exceptionAnalyser.transform([failure]) >> transformedException
-        1 * buildListener.buildFinished({ it.failure == transformedException })
+        1 * buildListener.buildFinished({ it.getFailures == transformedException })
         finishResult.failures.empty
 
         when:
@@ -489,7 +489,7 @@ class DefaultBuildLifecycleControllerTest extends Specification {
 
         then:
         1 * exceptionAnalyser.transform([failure, failure2]) >> transformedException
-        1 * buildListener.buildFinished({ it.failure == transformedException })
+        1 * buildListener.buildFinished({ it.getFailures == transformedException })
         finishResult.failures.empty
 
         when:
@@ -517,7 +517,7 @@ class DefaultBuildLifecycleControllerTest extends Specification {
         def finishResult = controller.finishBuild(null)
 
         then:
-        1 * buildListener.buildFinished({ it.failure == null }) >> { throw failure }
+        1 * buildListener.buildFinished({ it.getFailures == null }) >> { throw failure }
         finishResult.failures == [failure]
 
         when:
@@ -554,7 +554,7 @@ class DefaultBuildLifecycleControllerTest extends Specification {
 
         then:
         1 * exceptionAnalyser.transform([failure, failure2]) >> transformedException
-        1 * buildListener.buildFinished({ it.failure == transformedException }) >> { throw failure3 }
+        1 * buildListener.buildFinished({ it.getFailures == transformedException }) >> { throw failure3 }
         finishResult.failures == [failure3]
 
         when:
@@ -654,7 +654,7 @@ class DefaultBuildLifecycleControllerTest extends Specification {
     }
 
     private void expectBuildFinished(String action = "Build") {
-        1 * buildListener.buildFinished({ it.failure == null && it.action == action })
+        1 * buildListener.buildFinished({ it.getFailures == null && it.action == action })
         1 * buildModelLifecycleListener.beforeModelDiscarded(_, false)
     }
 }

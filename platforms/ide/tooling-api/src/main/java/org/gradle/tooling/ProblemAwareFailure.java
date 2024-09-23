@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.tooling.internal.protocol.problem;
+package org.gradle.tooling;
 
-import org.gradle.tooling.internal.protocol.InternalBasicProblemDetailsVersion3;
-import org.gradle.tooling.internal.protocol.InternalFailure;
+import org.gradle.api.Incubating;
+import org.gradle.tooling.events.problems.ProblemReport;
 
 import java.util.List;
 
 /**
- * DO NOT CHANGE THIS INTERFACE. It is part of the cross-version protocol.
+ * Represents a build failure that has associated problems.
  *
  * @since 8.11
  */
-public interface InternalProblemAwareFailure extends InternalFailure {
+@Incubating
+public interface ProblemAwareFailure extends Failure {
 
-    List<InternalBasicProblemDetailsVersion3> getProblems(); // TODO (donat) maybe this should be part of InternalFailure
-
+    /**
+     * Returns the problems associated with this failure.
+     * @return The problems, or an empty list if there are no problems.
+     *
+     * @since 8.11
+     */
+    List<ProblemReport> getProblems(); // TODO (donat) SingleProblemEvent should also use this type for consistency.
 }

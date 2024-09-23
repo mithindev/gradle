@@ -23,11 +23,8 @@ import org.gradle.tooling.BuildException
 import org.gradle.tooling.BuildFailureHandler
 import org.gradle.tooling.Failure
 import org.gradle.tooling.GradleConnectionException
+import org.gradle.tooling.ProblemAwareFailure
 import org.gradle.tooling.ResultHandler
-import org.gradle.tooling.events.ProgressEvent
-import org.gradle.tooling.events.ProgressListener
-import org.gradle.tooling.events.problems.ProblemReport
-import org.gradle.tooling.events.problems.ProblemToFailureEvent
 
 @ToolingApiVersion('>=8.11')
 @TargetGradleVersion('>=8.11')
@@ -61,13 +58,12 @@ class ProblemWithBuildFailureBuildLauncherCrossVersionSpec extends ToolingApiSpe
             connection.newBuild()
                 .forTasks("c")
                 .withBuildFailureHandler(failureHandler)
-                .run(resultHandler)
+                .run()
         }
 
         then:
         failureHandler.success == false
-        failureHandler.failure == null
-        failureHandler.problemReports == null
+        failureHandler.failures == null
     }
 
 
@@ -94,9 +90,10 @@ class ProblemWithBuildFailureBuildLauncherCrossVersionSpec extends ToolingApiSpe
         thrown(BuildException)
         failureHandler.success == false
         //failureHandler.failure != null // TODO (donat) maybe we should association the event to root build operation
-        failureHandler.problemReports.size() == 1
-        failureHandler.problemReports.entrySet().iterator().next().key.message == 'Task \'c\' is ambiguous in root project \'root\'. Candidates are: \'check\', \'classes\', \'clean\', \'components\'.'
-        failureHandler.problemReports.entrySet().iterator().next().value[0].definition.id.displayName == 'Ambiguous matches'
+        failureHandler.failures.size() == 1
+        failureHandler.failures[0] instanceof Failure  && !(failureHandler.failures[0] instanceof ProblemAwareFailure)
+        (failureHandler.failures[0].causes[0] as ProblemAwareFailure).problems[0].contextualLabel.contextualLabel == 'Task \'c\' is ambiguous in root project \'root\'. Candidates are: \'check\', \'classes\', \'clean\', \'components\'.'
+        (failureHandler.failures[0].causes[0] as ProblemAwareFailure).problems[0].definition.id.displayName == 'Ambiguous matches'
     }
 
     class FailureCollectingResultHandler implements ResultHandler<Void> {
@@ -112,23 +109,10 @@ class ProblemWithBuildFailureBuildLauncherCrossVersionSpec extends ToolingApiSpe
         }
     }
 
-    class ProblemProgressListener implements ProgressListener {
-
-        ProblemToFailureEvent event
-
-        @Override
-        void statusChanged(ProgressEvent event) {
-            if (event instanceof ProblemToFailureEvent) {
-                this.event = event
-            }
-        }
-    }
-
     class TestBuildFailedHandler implements BuildFailureHandler {
 
         boolean success = false
-        Failure failure = null
-        Map<Failure, Collection<ProblemReport>> problemReports = null
+        List<Failure> failures = null
 
         @Override
         void onSuccess() {
@@ -136,9 +120,8 @@ class ProblemWithBuildFailureBuildLauncherCrossVersionSpec extends ToolingApiSpe
         }
 
         @Override
-        void onFailure(Failure failure, Map<Failure, Collection<ProblemReport>> problemReports) {
-            this.failure = failure
-            this.problemReports = problemReports
+        void onFailure(List<Failure> failures) {
+            this.failures = failures
         }
     }
 }

@@ -21,34 +21,26 @@ import org.gradle.tooling.BuildFailureHandler;
 import org.gradle.tooling.Failure;
 import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.events.ProgressListener;
-import org.gradle.tooling.events.problems.ProblemReport;
 import org.gradle.tooling.events.problems.ProblemToFailureEvent;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 
 @NonNullApi
 public class BuildFailedProgressListener implements ProgressListener {
-    public Map<Failure, Collection<ProblemReport>> problems;
+    public List<Failure> failures;
     private BuildFailureHandler buildFailureHandler;
 
     @Override
     public void statusChanged(ProgressEvent event) {
         if (event instanceof ProblemToFailureEvent) {
-            ProblemToFailureEvent event1 = (ProblemToFailureEvent) event; // TODO (donat) BuildFailureWithProblemsEvent
-            event1.getProblemsForFailures();
-            this.problems = event1.getProblemsForFailures();
+            ProblemToFailureEvent failureEvent = (ProblemToFailureEvent) event; // TODO (donat) BuildFailureWithProblemsEvent
+            this.failures = failureEvent.getFailures();
             if (buildFailureHandler != null) {
-                buildFailureHandler.onFailure(event1.getFailure(), event1.getProblemsForFailures());
+                buildFailureHandler.onFailure(failureEvent.getFailures());
             }
             // TODO (donat) onSuccess missing
             // TODO (donat) handle onFailure ProblemToFailureEvent/BuildFailureWithProblemsEvent never arrives
         }
-    }
-
-    public Map<Failure, Collection<ProblemReport>> getProblems() {
-        // TODO (donat) delete method
-        return problems;
     }
 
     void setHandler(BuildFailureHandler buildFailureHandler) {

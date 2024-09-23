@@ -20,37 +20,26 @@ import org.gradle.api.NonNullApi;
 import org.gradle.tooling.Failure;
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.internal.BaseProgressEvent;
-import org.gradle.tooling.events.problems.ProblemReport;
 import org.gradle.tooling.events.problems.ProblemToFailureEvent;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 
 @NonNullApi
 public class DefaultProblemToFailureEvent extends BaseProgressEvent implements ProblemToFailureEvent {
 
-    private final Failure failure;
-    private final Map<Failure, Collection<ProblemReport>> problemsForFailures;
+    private final List<Failure> failures;
 
     public DefaultProblemToFailureEvent(
         long eventTime,
         @Nullable OperationDescriptor problemDescriptor,
-        Failure failure,
-        Map<Failure, Collection<ProblemReport>> problemsForFailures) {
+        List<Failure> failures) {
         super(eventTime, problemDescriptor == null ? "<null>" : problemDescriptor.getDisplayName(), problemDescriptor);
-
-        this.failure = failure;
-        this.problemsForFailures = problemsForFailures;
+        this.failures = failures;
     }
 
     @Override
-    public Failure getFailure() {
-        return failure;
-    }
-
-    @Override
-    public Map<Failure, Collection<ProblemReport>> getProblemsForFailures() {
-        return problemsForFailures;
+    public  List<Failure> getFailures() {
+        return failures;
     }
 }

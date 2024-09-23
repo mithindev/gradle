@@ -100,7 +100,7 @@ public class DefaultBuildLauncher extends AbstractLongRunningOperation<DefaultBu
 
     private class ResultHandlerAdapter extends org.gradle.tooling.internal.consumer.ResultHandlerAdapter<Void> {
         public ResultHandlerAdapter(ResultHandler<? super Void> handler) {
-            super(handler, DefaultBuildLauncher.this.createConnectionExceptionTransformer(new ConnectionExceptionTransformer.ConnectionFailureMessageProvider() {
+            super(handler, new ConnectionExceptionTransformer(new ConnectionExceptionTransformer.ConnectionFailureMessageProvider() {
                 @Override
                 public String getConnectionFailureMessage(Throwable throwable) {
                     return String.format("Could not execute build using %s.", connection.getDisplayName());
