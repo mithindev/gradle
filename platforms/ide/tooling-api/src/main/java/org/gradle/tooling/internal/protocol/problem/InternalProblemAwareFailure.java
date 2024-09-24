@@ -27,6 +27,6 @@ import java.util.List;
  */
 public interface InternalProblemAwareFailure extends InternalFailure {
 
-    List<InternalBasicProblemDetailsVersion3> getProblems(); // TODO (donat) maybe this should be part of InternalFailure
+    List<InternalBasicProblemDetailsVersion3> getProblems();
 
 }
