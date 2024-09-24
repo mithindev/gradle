@@ -18,7 +18,7 @@ package org.gradle.tooling.internal.consumer;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import org.gradle.internal.classpath.ClassPath;
-import org.gradle.tooling.BuildFailureHandler;
+import org.gradle.tooling.BuildOutcomeHandler;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProgressListener;
@@ -194,13 +194,13 @@ public abstract class AbstractLongRunningOperation<T extends AbstractLongRunning
     }
 
     @Override
-    public T withBuildFailureHandler(BuildFailureHandler buildFailureHandler) {
+    public T withBuildFailureHandler(BuildOutcomeHandler buildOutcomeHandler) {
         if (buildFailedProgressListener == null) {
             // TODO (donat) do we need generic here?
             // TODO (donat) we should have a separate operation type for build failure
             operationParamsBuilder.addProgressListener(buildFailedProgressListener = new BuildFailedProgressListener(), EnumSet.of(OperationType.GENERIC, OperationType.PROBLEMS));
         }
-        buildFailedProgressListener.setHandler(buildFailureHandler);
+        buildFailedProgressListener.setHandler(buildOutcomeHandler);
         return getThis();
     }
 

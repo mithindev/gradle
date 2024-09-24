@@ -17,7 +17,7 @@
 package org.gradle.tooling.internal.consumer;
 
 import org.gradle.api.NonNullApi;
-import org.gradle.tooling.BuildFailureHandler;
+import org.gradle.tooling.BuildOutcomeHandler;
 import org.gradle.tooling.Failure;
 import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.events.ProgressListener;
@@ -28,22 +28,22 @@ import java.util.List;
 @NonNullApi
 public class BuildFailedProgressListener implements ProgressListener {
     public List<Failure> failures;
-    private BuildFailureHandler buildFailureHandler;
+    private BuildOutcomeHandler buildOutcomeHandler;
 
     @Override
     public void statusChanged(ProgressEvent event) {
         if (event instanceof ProblemToFailureEvent) {
             ProblemToFailureEvent failureEvent = (ProblemToFailureEvent) event; // TODO (donat) BuildFailureWithProblemsEvent
             this.failures = failureEvent.getFailures();
-            if (buildFailureHandler != null) {
-                buildFailureHandler.onFailure(failureEvent.getFailures());
+            if (buildOutcomeHandler != null) {
+                buildOutcomeHandler.onFailure(failureEvent.getFailures());
             }
             // TODO (donat) onSuccess missing
             // TODO (donat) handle onFailure ProblemToFailureEvent/BuildFailureWithProblemsEvent never arrives
         }
     }
 
-    void setHandler(BuildFailureHandler buildFailureHandler) {
-        this.buildFailureHandler = buildFailureHandler;
+    void setHandler(BuildOutcomeHandler buildOutcomeHandler) {
+        this.buildOutcomeHandler = buildOutcomeHandler;
     }
 }

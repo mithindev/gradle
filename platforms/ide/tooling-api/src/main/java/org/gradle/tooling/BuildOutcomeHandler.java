@@ -21,15 +21,18 @@ import org.gradle.api.Incubating;
 import java.util.List;
 
 /**
- * TODO A handler for build failures.
+ * Callback interface for handling the outcome of a build.
+ * <p
+ * Upon a build failure, the handler may receive more detailed information about the failures that occurred, such as the problems associated with the failures.
  *
+ * @see ProblemAwareFailure
  * @since 8.11
  */
 @Incubating
-public interface BuildFailureHandler {
+public interface BuildOutcomeHandler {
 
     /**
-     * Called when the build was successful.
+     * Called when the build finished successfully.
      *
      * @since 8.11
      */

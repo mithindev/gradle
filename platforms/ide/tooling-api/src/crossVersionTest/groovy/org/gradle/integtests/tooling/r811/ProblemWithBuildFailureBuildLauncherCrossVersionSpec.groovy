@@ -20,7 +20,7 @@ import org.gradle.integtests.tooling.fixture.TargetGradleVersion
 import org.gradle.integtests.tooling.fixture.ToolingApiSpecification
 import org.gradle.integtests.tooling.fixture.ToolingApiVersion
 import org.gradle.tooling.BuildException
-import org.gradle.tooling.BuildFailureHandler
+import org.gradle.tooling.BuildOutcomeHandler
 import org.gradle.tooling.Failure
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.ProblemAwareFailure
@@ -109,7 +109,7 @@ class ProblemWithBuildFailureBuildLauncherCrossVersionSpec extends ToolingApiSpe
         }
     }
 
-    class TestBuildFailedHandler implements BuildFailureHandler {
+    class TestBuildFailedHandler implements BuildOutcomeHandler {
 
         boolean success = false
         List<Failure> failures = null

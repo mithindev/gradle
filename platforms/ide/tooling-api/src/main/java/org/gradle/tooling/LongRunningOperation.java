@@ -321,10 +321,10 @@ public interface LongRunningOperation {
     /**
      * TODO Sets the build failure handler to use to handle build failures.
      *
-     * @param buildFailureHandler the build failure handler0p-0
+     * @param buildOutcomeHandler the build failure handler0p-0
      * @return this
      * @since 8.11
      */
     @Incubating
-    LongRunningOperation withBuildFailureHandler(BuildFailureHandler buildFailureHandler);
+    LongRunningOperation withBuildFailureHandler(BuildOutcomeHandler buildOutcomeHandler);
 }
