@@ -21,7 +21,6 @@ package org.gradle.tooling;
  * @since 1.0-milestone-3
  */
 public class BuildException extends GradleConnectionException {
-
     public BuildException(String message, Throwable throwable) {
         super(message, throwable);
     }
