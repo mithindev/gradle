@@ -30,27 +30,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 @NonNullApi
-public class BuildFailedProgressListener implements ProgressListener {
-    public List<Failure> failures;
-    private BuildOutcomeHandler buildOutcomeHandler = NOOP_HANDLER;
+public class BuildFailedProgressAdapter implements ProgressListener {
+
     private boolean failureReported = false;
+    private BuildOutcomeHandler buildOutcomeHandler = null;
 
     @Override
     public void statusChanged(ProgressEvent event) {
         if (event instanceof BuildFailureEvent) {
             BuildFailureEvent failureEvent = (BuildFailureEvent) event;
-            this.failures = failureEvent.getFailures();
-            buildOutcomeHandler.onFailure(failureEvent.getFailures());
+            notifyFailure(failureEvent.getFailures());
             failureReported = true;
         }
 
         if (event instanceof FinishEvent && event.getDescriptor().getParent() == null && !failureReported) {
             OperationResult result = ((FinishEvent) event).getResult();
             if (result instanceof FailureResult) {
-                buildOutcomeHandler.onFailure(new ArrayList<>(((FailureResult) result).getFailures()));
+                notifyFailure(new ArrayList<>(((FailureResult) result).getFailures()));
             } else {
-                buildOutcomeHandler.onSuccess();
+                notifySuccess();
             }
+        }
+    }
+
+    private void notifySuccess() {
+        if (buildOutcomeHandler != null) {
+            buildOutcomeHandler.onSuccess();
+        }
+    }
+
+    private void notifyFailure(List<Failure> failures) {
+        if (buildOutcomeHandler != null) {
+            buildOutcomeHandler.onFailure(failures);
         }
     }
 
@@ -58,13 +69,4 @@ public class BuildFailedProgressListener implements ProgressListener {
         this.buildOutcomeHandler = buildOutcomeHandler;
     }
 
-    private static BuildOutcomeHandler NOOP_HANDLER = new BuildOutcomeHandler() {
-        @Override
-        public void onSuccess() {
-        }
-
-        @Override
-        public void onFailure(List<Failure> failures) {
-        }
-    };
 }

@@ -17,6 +17,7 @@
 package org.gradle.tooling;
 
 import org.gradle.api.Incubating;
+import org.gradle.api.NonNullApi;
 
 import java.util.List;
 
@@ -29,6 +30,7 @@ import java.util.List;
  * @since 8.11
  */
 @Incubating
+@NonNullApi
 public interface BuildOutcomeHandler {
 
     /**

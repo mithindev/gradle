@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class AbstractLongRunningOperation<T extends AbstractLongRunningOperation<T>> implements LongRunningOperation {
-    private BuildFailedProgressListener buildFailedProgressListener = null;
+    private BuildFailedProgressAdapter buildFailedProgressAdapter = null;
     protected final ConnectionParameters connectionParameters;
     protected final ConsumerOperationParameters.Builder operationParamsBuilder;
 
@@ -182,10 +182,10 @@ public abstract class AbstractLongRunningOperation<T extends AbstractLongRunning
 
     @Override
     public T withBuildOutcomeHandler(BuildOutcomeHandler buildOutcomeHandler) {
-        if (buildFailedProgressListener == null) {
-            operationParamsBuilder.addProgressListener(buildFailedProgressListener = new BuildFailedProgressListener(), EnumSet.of(OperationType.PROBLEMS));
+        if (buildFailedProgressAdapter == null) {
+            operationParamsBuilder.addProgressListener(buildFailedProgressAdapter = new BuildFailedProgressAdapter(), EnumSet.of(OperationType.PROBLEMS));
         }
-        buildFailedProgressListener.setHandler(buildOutcomeHandler);
+        buildFailedProgressAdapter.setHandler(buildOutcomeHandler);
         return getThis();
     }
 
