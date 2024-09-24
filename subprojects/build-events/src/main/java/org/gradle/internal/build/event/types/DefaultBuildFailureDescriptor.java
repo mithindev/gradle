@@ -18,18 +18,17 @@ package org.gradle.internal.build.event.types;
 
 import org.gradle.api.NonNullApi;
 import org.gradle.internal.operations.OperationIdentifier;
-import org.gradle.tooling.internal.protocol.events.InternalProblemToFailureDescriptor;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
 
 @NonNullApi
-public class DefaultProblemToFailureDescriptor implements Serializable, InternalProblemToFailureDescriptor {
+public class DefaultBuildFailureDescriptor implements Serializable, org.gradle.tooling.internal.protocol.events.DefaultBuildFailureDescriptor {
 
     private final OperationIdentifier id;
     private final OperationIdentifier parentId;
 
-    public DefaultProblemToFailureDescriptor(OperationIdentifier id, @Nullable OperationIdentifier parentId) {
+    public DefaultBuildFailureDescriptor(OperationIdentifier id, @Nullable OperationIdentifier parentId) {
         this.id = id;
         this.parentId = parentId;
     }
@@ -41,7 +40,7 @@ public class DefaultProblemToFailureDescriptor implements Serializable, Internal
 
     @Override
     public String getName() {
-        return "Problem to build failure";
+        return "Build failure";
     }
 
     @Override

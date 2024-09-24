@@ -21,7 +21,7 @@ import org.gradle.tooling.BuildOutcomeHandler;
 import org.gradle.tooling.Failure;
 import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.events.ProgressListener;
-import org.gradle.tooling.events.problems.ProblemToFailureEvent;
+import org.gradle.tooling.events.problems.BuildFailureEvent;
 
 import java.util.List;
 
@@ -32,14 +32,14 @@ public class BuildFailedProgressListener implements ProgressListener {
 
     @Override
     public void statusChanged(ProgressEvent event) {
-        if (event instanceof ProblemToFailureEvent) {
-            ProblemToFailureEvent failureEvent = (ProblemToFailureEvent) event; // TODO (donat) BuildFailureWithProblemsEvent
+        if (event instanceof BuildFailureEvent) {
+            BuildFailureEvent failureEvent = (BuildFailureEvent) event; // TODO (donat) BuildFailureWithProblemsEvent
             this.failures = failureEvent.getFailures();
             if (buildOutcomeHandler != null) {
                 buildOutcomeHandler.onFailure(failureEvent.getFailures());
             }
             // TODO (donat) onSuccess missing
-            // TODO (donat) handle onFailure ProblemToFailureEvent/BuildFailureWithProblemsEvent never arrives
+            // TODO (donat) handle onFailure BuildFailureEvent/BuildFailureWithProblemsEvent never arrives
         }
     }
 

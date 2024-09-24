@@ -18,15 +18,15 @@ package org.gradle.internal.build.event.types;
 
 import org.gradle.api.NonNullApi;
 import org.gradle.tooling.internal.protocol.InternalProblemEventVersion2;
-import org.gradle.tooling.internal.protocol.events.InternalProblemToFailureDescriptor;
+import org.gradle.tooling.internal.protocol.events.DefaultBuildFailureDescriptor;
 import org.gradle.tooling.internal.protocol.problem.InternalProblemToFailureDetails;
 
 @NonNullApi
-    public class DefaultProblemToFailureEvent extends AbstractProgressEvent<InternalProblemToFailureDescriptor> implements InternalProblemEventVersion2 {
+    public class DefaultBuildFailureEvent extends AbstractProgressEvent<DefaultBuildFailureDescriptor> implements InternalProblemEventVersion2 {
     private final InternalProblemToFailureDetails details;
 
-    public DefaultProblemToFailureEvent(
-        InternalProblemToFailureDescriptor descriptor,
+    public DefaultBuildFailureEvent(
+        DefaultBuildFailureDescriptor descriptor,
         InternalProblemToFailureDetails details
     ) {
         super(System.currentTimeMillis(), descriptor);

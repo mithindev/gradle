@@ -20,17 +20,17 @@ import org.gradle.api.NonNullApi;
 import org.gradle.tooling.Failure;
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.internal.BaseProgressEvent;
-import org.gradle.tooling.events.problems.ProblemToFailureEvent;
+import org.gradle.tooling.events.problems.BuildFailureEvent;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
 @NonNullApi
-public class DefaultProblemToFailureEvent extends BaseProgressEvent implements ProblemToFailureEvent {
+public class DefaultBuildFailureEvent extends BaseProgressEvent implements BuildFailureEvent {
 
     private final List<Failure> failures;
 
-    public DefaultProblemToFailureEvent(
+    public DefaultBuildFailureEvent(
         long eventTime,
         @Nullable OperationDescriptor problemDescriptor,
         List<Failure> failures) {

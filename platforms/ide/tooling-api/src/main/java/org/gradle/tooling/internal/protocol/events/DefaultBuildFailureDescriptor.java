@@ -13,29 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.tooling.events.problems;
 
-import org.gradle.api.Incubating;
+package org.gradle.tooling.internal.protocol.events;
+
 import org.gradle.api.NonNullApi;
-import org.gradle.tooling.Failure;
 
-import java.util.List;
-
-/**
- *
- * Represents build failures and their associated problems
- *
- * @since 8.11
- */
 @NonNullApi
-@Incubating
-public interface ProblemToFailureEvent extends ProblemEvent {
-
-    /**
-     * Returns the list of failures that are associated with the problems
-     *
-     * @return the list of failures
-     * @since 8.11
-     */
-    List<Failure> getFailures();
+public interface DefaultBuildFailureDescriptor extends InternalOperationDescriptor {
 }

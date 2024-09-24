@@ -66,6 +66,7 @@ import org.gradle.tooling.events.lifecycle.internal.DefaultBuildPhaseFinishEvent
 import org.gradle.tooling.events.lifecycle.internal.DefaultBuildPhaseOperationDescriptor;
 import org.gradle.tooling.events.lifecycle.internal.DefaultBuildPhaseStartEvent;
 import org.gradle.tooling.events.problems.AdditionalData;
+import org.gradle.tooling.events.problems.BuildFailureEvent;
 import org.gradle.tooling.events.problems.ContextualLabel;
 import org.gradle.tooling.events.problems.Details;
 import org.gradle.tooling.events.problems.DocumentationLink;
@@ -77,9 +78,9 @@ import org.gradle.tooling.events.problems.ProblemEvent;
 import org.gradle.tooling.events.problems.ProblemGroup;
 import org.gradle.tooling.events.problems.ProblemId;
 import org.gradle.tooling.events.problems.ProblemReport;
-import org.gradle.tooling.events.problems.ProblemToFailureEvent;
 import org.gradle.tooling.events.problems.Severity;
 import org.gradle.tooling.events.problems.Solution;
+import org.gradle.tooling.events.problems.internal.DefaultBuildFailureEvent;
 import org.gradle.tooling.events.problems.internal.DefaultContextualLabel;
 import org.gradle.tooling.events.problems.internal.DefaultDetails;
 import org.gradle.tooling.events.problems.internal.DefaultDocumentationLink;
@@ -94,7 +95,6 @@ import org.gradle.tooling.events.problems.internal.DefaultProblemDefinition;
 import org.gradle.tooling.events.problems.internal.DefaultProblemGroup;
 import org.gradle.tooling.events.problems.internal.DefaultProblemId;
 import org.gradle.tooling.events.problems.internal.DefaultProblemReport;
-import org.gradle.tooling.events.problems.internal.DefaultProblemToFailureEvent;
 import org.gradle.tooling.events.problems.internal.DefaultProblemsOperationContext;
 import org.gradle.tooling.events.problems.internal.DefaultSeverity;
 import org.gradle.tooling.events.problems.internal.DefaultSingleProblemEvent;
@@ -174,6 +174,7 @@ import org.gradle.tooling.internal.protocol.InternalProblemGroup;
 import org.gradle.tooling.internal.protocol.InternalProblemId;
 import org.gradle.tooling.internal.protocol.InternalTestAssertionFailure;
 import org.gradle.tooling.internal.protocol.InternalTestFrameworkFailure;
+import org.gradle.tooling.internal.protocol.events.DefaultBuildFailureDescriptor;
 import org.gradle.tooling.internal.protocol.events.InternalBinaryPluginIdentifier;
 import org.gradle.tooling.internal.protocol.events.InternalBuildPhaseDescriptor;
 import org.gradle.tooling.internal.protocol.events.InternalFailureResult;
@@ -190,7 +191,6 @@ import org.gradle.tooling.internal.protocol.events.InternalOperationResult;
 import org.gradle.tooling.internal.protocol.events.InternalOperationStartedProgressEvent;
 import org.gradle.tooling.internal.protocol.events.InternalPluginIdentifier;
 import org.gradle.tooling.internal.protocol.events.InternalProblemDescriptor;
-import org.gradle.tooling.internal.protocol.events.InternalProblemToFailureDescriptor;
 import org.gradle.tooling.internal.protocol.events.InternalProgressEvent;
 import org.gradle.tooling.internal.protocol.events.InternalProjectConfigurationDescriptor;
 import org.gradle.tooling.internal.protocol.events.InternalProjectConfigurationResult;
@@ -391,8 +391,8 @@ public class BuildProgressListenerAdapter implements InternalBuildProgressListen
             broadcastBuildPhaseEvent(progressEvent, (InternalBuildPhaseDescriptor) descriptor);
         } else if (descriptor instanceof InternalProblemDescriptor) {
             broadcastProblemEvent(progressEvent, (InternalProblemDescriptor) descriptor);
-        } else if (descriptor instanceof InternalProblemToFailureDescriptor) {
-            broadcastProblemToFailureEvent((InternalProblemEventVersion2) progressEvent, (InternalProblemToFailureDescriptor) descriptor);
+        } else if (descriptor instanceof DefaultBuildFailureDescriptor) {
+            broadcastProblemToFailureEvent((InternalProblemEventVersion2) progressEvent, (DefaultBuildFailureDescriptor) descriptor);
         } else {
             broadcastGenericProgressEvent(progressEvent);
         }
@@ -467,10 +467,10 @@ public class BuildProgressListenerAdapter implements InternalBuildProgressListen
         }
     }
 
-    private void broadcastProblemToFailureEvent(InternalProblemEventVersion2 progressEvent, InternalProblemToFailureDescriptor descriptor) {
-        ProblemEvent problemEvent = toProblemToFailureEvent(progressEvent, descriptor);
-        if (problemEvent != null) {
-            problemListeners.getSource().statusChanged(problemEvent);
+    private void broadcastProblemToFailureEvent(InternalProblemEventVersion2 progressEvent, DefaultBuildFailureDescriptor descriptor) {
+        BuildFailureEvent buildFailureEvent = toBuildFailureEvent(progressEvent, descriptor);
+        if (buildFailureEvent != null) {
+            problemListeners.getSource().statusChanged(buildFailureEvent);
         }
     }
 
@@ -596,7 +596,7 @@ public class BuildProgressListenerAdapter implements InternalBuildProgressListen
         return null;
     }
 
-    private @Nullable ProblemToFailureEvent toProblemToFailureEvent(InternalProblemEventVersion2 problemEvent, InternalProblemToFailureDescriptor descriptor) {
+    private @Nullable BuildFailureEvent toBuildFailureEvent(InternalProblemEventVersion2 problemEvent, DefaultBuildFailureDescriptor descriptor) {
         InternalProblemDetailsVersion2 details = problemEvent.getDetails();
         if (details instanceof InternalProblemToFailureDetails) {
             List<InternalFailure> failures = ((InternalProblemToFailureDetails) details).getFailures();
@@ -604,7 +604,7 @@ public class BuildProgressListenerAdapter implements InternalBuildProgressListen
             for (InternalFailure failure : failures) {
                 clientFailures.add(toFailure(failure));
             }
-            return new DefaultProblemToFailureEvent(
+            return new DefaultBuildFailureEvent(
                 problemEvent.getEventTime(),
                 getParentDescriptor(descriptor.getParentId()),
                 clientFailures
