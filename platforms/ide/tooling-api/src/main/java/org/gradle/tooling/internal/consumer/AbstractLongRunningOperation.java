@@ -175,16 +175,8 @@ public abstract class AbstractLongRunningOperation<T extends AbstractLongRunning
     @Override
     public T addProgressListener(org.gradle.tooling.events.ProgressListener listener, Set<OperationType> eventTypes) {
         optTypes.addAll(eventTypes);
-        maybeAddProblemListener(operationParamsBuilder, eventTypes);
         operationParamsBuilder.addProgressListener(listener, eventTypes);
         return getThis();
-    }
-
-    private void maybeAddProblemListener(ConsumerOperationParameters.Builder operationParamsBuilder, Set<OperationType> eventTypes) {
-        // TODO (donat) when exactly we need to add the buildFailedProgressListener?
-        if (buildFailedProgressListener == null && eventTypes.contains(OperationType.PROBLEMS))  {
-            operationParamsBuilder.addProgressListener(buildFailedProgressListener = new BuildFailedProgressListener(), EnumSet.of(OperationType.GENERIC, OperationType.PROBLEMS));
-        }
     }
 
     @Override
@@ -196,9 +188,7 @@ public abstract class AbstractLongRunningOperation<T extends AbstractLongRunning
     @Override
     public T withBuildFailureHandler(BuildOutcomeHandler buildOutcomeHandler) {
         if (buildFailedProgressListener == null) {
-            // TODO (donat) do we need generic here?
-            // TODO (donat) we should have a separate operation type for build failure
-            operationParamsBuilder.addProgressListener(buildFailedProgressListener = new BuildFailedProgressListener(), EnumSet.of(OperationType.GENERIC, OperationType.PROBLEMS));
+            operationParamsBuilder.addProgressListener(buildFailedProgressListener = new BuildFailedProgressListener(), EnumSet.of(OperationType.PROBLEMS));
         }
         buildFailedProgressListener.setHandler(buildOutcomeHandler);
         return getThis();

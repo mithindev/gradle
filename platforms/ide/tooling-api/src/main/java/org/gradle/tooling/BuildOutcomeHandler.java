@@ -22,7 +22,7 @@ import java.util.List;
 
 /**
  * Callback interface for handling the outcome of a build.
- * <p
+ * <p>
  * Upon a build failure, the handler may receive more detailed information about the failures that occurred, such as the problems associated with the failures.
  *
  * @see ProblemAwareFailure

@@ -62,6 +62,7 @@ class ProblemWithBuildFailureBuildLauncherCrossVersionSpec extends ToolingApiSpe
         }
 
         then:
+        thrown(BuildException)
         failureHandler.success == false
         failureHandler.failures == null
     }
