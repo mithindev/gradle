@@ -23,11 +23,11 @@ import org.gradle.internal.build.event.BuildEventSubscriptions;
 import org.gradle.internal.build.event.types.AbstractOperationResult;
 import org.gradle.internal.build.event.types.DefaultBuildBuildDescriptor;
 import org.gradle.internal.build.event.types.DefaultBuildFailureDescriptor;
+import org.gradle.internal.build.event.types.DefaultBuildFailureDetails;
 import org.gradle.internal.build.event.types.DefaultBuildFailureEvent;
 import org.gradle.internal.build.event.types.DefaultOperationFinishedProgressEvent;
 import org.gradle.internal.build.event.types.DefaultOperationStartedProgressEvent;
 import org.gradle.internal.build.event.types.DefaultProblemAwareFailure;
-import org.gradle.internal.build.event.types.DefaultProblemToFailureDetails;
 import org.gradle.internal.operations.BuildOperationDescriptor;
 import org.gradle.internal.operations.BuildOperationIdFactory;
 import org.gradle.internal.operations.OperationFinishEvent;
@@ -87,7 +87,7 @@ class RunBuildBuildOperationMapper implements BuildOperationMapper<RunBuildBuild
             Throwable failure = buildFailureDetails.getBuildFailure();
             Map<Throwable, Collection<Problem>> problemsForThrowables = buildFailureDetails.getProblemsForThrowables();
             InternalFailure rootFailure = DefaultProblemAwareFailure.fromThrowable(failure, problemsForThrowables, ProblemsProgressEventConsumer::createDefaultProblemDetails);
-            return new DefaultBuildFailureEvent(new DefaultBuildFailureDescriptor(operationIdentifierSupplier.get(), descriptor.getId()), new DefaultProblemToFailureDetails(Collections.singletonList(rootFailure)));
+            return new DefaultBuildFailureEvent(new DefaultBuildFailureDescriptor(operationIdentifierSupplier.get(), descriptor.getId()), new DefaultBuildFailureDetails(Collections.singletonList(rootFailure)));
         }
         return null;
     }

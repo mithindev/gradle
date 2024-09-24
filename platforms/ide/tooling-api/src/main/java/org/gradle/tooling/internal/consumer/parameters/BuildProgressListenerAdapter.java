@@ -220,6 +220,7 @@ import org.gradle.tooling.internal.protocol.events.InternalWorkItemDescriptor;
 import org.gradle.tooling.internal.protocol.problem.InternalAdditionalData;
 import org.gradle.tooling.internal.protocol.problem.InternalBasicProblemDetails;
 import org.gradle.tooling.internal.protocol.problem.InternalBasicProblemDetailsVersion2;
+import org.gradle.tooling.internal.protocol.problem.InternalBuildFailureDetails;
 import org.gradle.tooling.internal.protocol.problem.InternalContextualLabel;
 import org.gradle.tooling.internal.protocol.problem.InternalDetails;
 import org.gradle.tooling.internal.protocol.problem.InternalDocumentationLink;
@@ -232,7 +233,6 @@ import org.gradle.tooling.internal.protocol.problem.InternalPluginIdLocation;
 import org.gradle.tooling.internal.protocol.problem.InternalProblemAwareFailure;
 import org.gradle.tooling.internal.protocol.problem.InternalProblemCategory;
 import org.gradle.tooling.internal.protocol.problem.InternalProblemDetailsVersion2;
-import org.gradle.tooling.internal.protocol.problem.InternalProblemToFailureDetails;
 import org.gradle.tooling.internal.protocol.problem.InternalSeverity;
 import org.gradle.tooling.internal.protocol.problem.InternalSolution;
 import org.gradle.tooling.internal.protocol.problem.InternalTaskPathLocation;
@@ -598,8 +598,8 @@ public class BuildProgressListenerAdapter implements InternalBuildProgressListen
 
     private @Nullable BuildFailureEvent toBuildFailureEvent(InternalProblemEventVersion2 problemEvent, DefaultBuildFailureDescriptor descriptor) {
         InternalProblemDetailsVersion2 details = problemEvent.getDetails();
-        if (details instanceof InternalProblemToFailureDetails) {
-            List<InternalFailure> failures = ((InternalProblemToFailureDetails) details).getFailures();
+        if (details instanceof InternalBuildFailureDetails) {
+            List<InternalFailure> failures = ((InternalBuildFailureDetails) details).getFailures();
             List<Failure> clientFailures = new ArrayList<>();
             for (InternalFailure failure : failures) {
                 clientFailures.add(toFailure(failure));

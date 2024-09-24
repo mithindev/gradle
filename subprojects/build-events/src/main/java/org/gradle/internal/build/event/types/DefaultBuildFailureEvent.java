@@ -19,15 +19,15 @@ package org.gradle.internal.build.event.types;
 import org.gradle.api.NonNullApi;
 import org.gradle.tooling.internal.protocol.InternalProblemEventVersion2;
 import org.gradle.tooling.internal.protocol.events.DefaultBuildFailureDescriptor;
-import org.gradle.tooling.internal.protocol.problem.InternalProblemToFailureDetails;
+import org.gradle.tooling.internal.protocol.problem.InternalBuildFailureDetails;
 
 @NonNullApi
     public class DefaultBuildFailureEvent extends AbstractProgressEvent<DefaultBuildFailureDescriptor> implements InternalProblemEventVersion2 {
-    private final InternalProblemToFailureDetails details;
+    private final InternalBuildFailureDetails details;
 
     public DefaultBuildFailureEvent(
         DefaultBuildFailureDescriptor descriptor,
-        InternalProblemToFailureDetails details
+        InternalBuildFailureDetails details
     ) {
         super(System.currentTimeMillis(), descriptor);
         this.details = details;
@@ -39,7 +39,7 @@ import org.gradle.tooling.internal.protocol.problem.InternalProblemToFailureDeta
     }
 
     @Override
-    public InternalProblemToFailureDetails getDetails() {
+    public InternalBuildFailureDetails getDetails() {
         return details;
     }
 }

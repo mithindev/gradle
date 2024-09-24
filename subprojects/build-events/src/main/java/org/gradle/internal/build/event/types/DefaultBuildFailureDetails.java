@@ -14,13 +14,26 @@
  * limitations under the License.
  */
 
-package org.gradle.tooling.internal.protocol.problem;
+package org.gradle.internal.build.event.types;
 
+import org.gradle.api.NonNullApi;
 import org.gradle.tooling.internal.protocol.InternalFailure;
+import org.gradle.tooling.internal.protocol.problem.InternalBuildFailureDetails;
 
+import java.io.Serializable;
 import java.util.List;
 
-public interface InternalProblemToFailureDetails extends InternalProblemDetailsVersion2 {
+@NonNullApi
+public class DefaultBuildFailureDetails implements InternalBuildFailureDetails, Serializable {
 
-    List<InternalFailure> getFailures(); // we probably don't need this method
+    private final List<InternalFailure> failures;
+
+    public DefaultBuildFailureDetails(List<InternalFailure> failures) {
+        this.failures = failures;
+    }
+
+    @Override
+    public List<InternalFailure> getFailures() {
+        return failures;
+    }
 }
