@@ -50,4 +50,5 @@ public class DefaultOperationFailureResult implements FailureResult {
     public List<? extends Failure> getFailures() {
         return failures;
     }
+
 }

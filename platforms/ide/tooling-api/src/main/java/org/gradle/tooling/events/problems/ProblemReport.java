@@ -23,12 +23,12 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 /**
- * TODO document me.
+ * A problem report
  *
  * @since 8.11
  */
 @Incubating
-public interface ProblemReport { // TODO (donat) consider renaming to Problem
+public interface ProblemReport {
 
     /**
      * Returns the problem definition.

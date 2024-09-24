@@ -33,4 +33,5 @@ public interface FailureResult extends OperationResult {
      * @return the failures, empty if the operation failed without any specific failure information.
      */
     List<? extends Failure> getFailures();
+
 }
