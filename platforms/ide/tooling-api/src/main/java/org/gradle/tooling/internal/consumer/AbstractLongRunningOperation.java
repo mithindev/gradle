@@ -186,7 +186,7 @@ public abstract class AbstractLongRunningOperation<T extends AbstractLongRunning
     }
 
     @Override
-    public T withBuildFailureHandler(BuildOutcomeHandler buildOutcomeHandler) {
+    public T withBuildOutcomeHandler(BuildOutcomeHandler buildOutcomeHandler) {
         if (buildFailedProgressListener == null) {
             operationParamsBuilder.addProgressListener(buildFailedProgressListener = new BuildFailedProgressListener(), EnumSet.of(OperationType.PROBLEMS));
         }

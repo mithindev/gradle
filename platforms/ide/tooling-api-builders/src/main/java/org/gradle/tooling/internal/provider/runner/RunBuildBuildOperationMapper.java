@@ -87,7 +87,7 @@ class RunBuildBuildOperationMapper implements BuildOperationMapper<RunBuildBuild
             Throwable failure = buildFailureDetails.getBuildFailure();
             Map<Throwable, Collection<Problem>> problemsForThrowables = buildFailureDetails.getProblemsForThrowables();
             InternalFailure rootFailure = DefaultProblemAwareFailure.fromThrowable(failure, problemsForThrowables, ProblemsProgressEventConsumer::createDefaultProblemDetails);
-            return new DefaultProblemToFailureEvent(new DefaultProblemToFailureDescriptor(operationIdentifierSupplier.get(),descriptor.getId()), new DefaultProblemToFailureDetails(Collections.singletonList(rootFailure)));
+            return new DefaultProblemToFailureEvent(new DefaultProblemToFailureDescriptor(operationIdentifierSupplier.get(), descriptor.getId()), new DefaultProblemToFailureDetails(Collections.singletonList(rootFailure)));
         }
         return null;
     }

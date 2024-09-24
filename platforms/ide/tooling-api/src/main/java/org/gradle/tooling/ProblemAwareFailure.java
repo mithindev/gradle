@@ -34,5 +34,5 @@ public interface ProblemAwareFailure extends Failure {
      *
      * @since 8.11
      */
-    List<ProblemReport> getProblems(); // TODO (donat) SingleProblemEvent should also use this type for consistency.
+    List<ProblemReport> getProblems();
 }

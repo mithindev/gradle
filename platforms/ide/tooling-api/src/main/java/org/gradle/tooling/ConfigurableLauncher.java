@@ -176,5 +176,5 @@ public interface ConfigurableLauncher<T extends ConfigurableLauncher<T>> extends
      * @since 8.11
      */
     @Override
-    T withBuildFailureHandler(BuildOutcomeHandler buildOutcomeHandler);
+    T withBuildOutcomeHandler(BuildOutcomeHandler buildOutcomeHandler);
 }

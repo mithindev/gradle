@@ -18,11 +18,8 @@ package org.gradle.tooling.events.internal;
 
 import org.gradle.tooling.Failure;
 import org.gradle.tooling.events.FailureResult;
-import org.gradle.tooling.events.problems.ProblemReport;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Implementation of the {@code BuildFailureResult} interface.
@@ -32,17 +29,11 @@ public class DefaultOperationFailureResult implements FailureResult {
     private final long startTime;
     private final long endTime;
     private final List<? extends Failure> failures;
-    private final Map<Failure, List<ProblemReport>> problems;
 
     public DefaultOperationFailureResult(long startTime, long endTime, List<? extends Failure> failures) {
-        this(startTime, endTime, failures, Collections.<Failure, List<ProblemReport>>emptyMap());
-    }
-
-    public DefaultOperationFailureResult(long startTime, long endTime, List<? extends Failure> failures, Map<Failure, List<ProblemReport>> problems) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.failures = failures;
-        this.problems = problems;
     }
 
     @Override
@@ -58,10 +49,5 @@ public class DefaultOperationFailureResult implements FailureResult {
     @Override
     public List<? extends Failure> getFailures() {
         return failures;
-    }
-
-    @Override
-    public Map<Failure, List<ProblemReport>> getProblems() {
-        return problems;
     }
 }

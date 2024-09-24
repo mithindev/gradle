@@ -319,12 +319,12 @@ public interface LongRunningOperation {
     LongRunningOperation withCancellationToken(CancellationToken cancellationToken);
 
     /**
-     * TODO Sets the build failure handler to use to handle build failures.
+     * Registers a new callback to be notified when the build completes.
      *
-     * @param buildOutcomeHandler the build failure handler0p-0
+     * @param buildOutcomeHandler the callback to be notified
      * @return this
      * @since 8.11
      */
     @Incubating
-    LongRunningOperation withBuildFailureHandler(BuildOutcomeHandler buildOutcomeHandler);
+    LongRunningOperation withBuildOutcomeHandler(BuildOutcomeHandler buildOutcomeHandler);
 }

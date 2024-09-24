@@ -21,7 +21,6 @@ package org.gradle.tooling;
  * @since 1.0-milestone-3
  */
 public class GradleConnectionException extends RuntimeException {
-
     public GradleConnectionException(String message) {
         super(message);
     }
