@@ -20,9 +20,20 @@ import java.util.Collection;
 import java.util.Map;
 
 /*
- * Marker interface required by the build operations infrastructure.
+ * Details object exposing a build failure and its associated problem reports.
  */
 public interface BuildFailureWithProblemsProgressDetails {
+
+    /**
+     * Returns a map of exceptions emitted via the Problems API and their associated problem reports.
+     */
     Map<Throwable, Collection<Problem>> getProblemsForThrowables();
+
+    /**
+     * Returns the exception representing the build failure. Clients are expected to traverse the cause chain of the returned exception and use the {@link #getProblemsForThrowables()} method to obtain
+     * problem reports associated with the exceptions in the chain.
+     *
+     * @return The build failure exception
+     */
     Throwable getBuildFailure();
 }
