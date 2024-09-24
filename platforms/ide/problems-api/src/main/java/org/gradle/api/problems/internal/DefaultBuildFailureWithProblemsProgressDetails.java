@@ -21,17 +21,17 @@ import java.util.Map;
 
 public class DefaultBuildFailureWithProblemsProgressDetails implements BuildFailureWithProblemsProgressDetails {
 
-    private final Map<Throwable, Collection<Problem>> problems;
+    private final Map<Throwable, Collection<Problem>> problemsToThrowables;
     private final Throwable buildFailure;
 
-    public DefaultBuildFailureWithProblemsProgressDetails(Map<Throwable, Collection<Problem>> problems, Throwable buildFailure) {
-        this.problems = problems;
+    public DefaultBuildFailureWithProblemsProgressDetails(Throwable buildFailure, Map<Throwable, Collection<Problem>> problemsToThrowables) {
+        this.problemsToThrowables = problemsToThrowables;
         this.buildFailure = buildFailure;
     }
 
     @Override
     public Map<Throwable, Collection<Problem>> getProblemsForThrowables() {
-        return problems;
+        return problemsToThrowables;
     }
 
     @Override

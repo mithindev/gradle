@@ -68,7 +68,7 @@ public class ProblemReportingBuildActionRunner implements BuildActionRunner {
     private void emitBuildFailureWithProblemsProgressEvent(Throwable buildFailure) {
         // TODO (donat) sanitize failures with exceptionAnalyser
         Map<Throwable, Collection<Problem>> problems = problemsService.getProblemsForThrowables().asMap();
-        eventEmitter.emitNowForCurrent(new DefaultBuildFailureWithProblemsProgressDetails(problems, buildFailure));
+        eventEmitter.emitNowForCurrent(new DefaultBuildFailureWithProblemsProgressDetails(buildFailure, problems));
     }
 
     private List<Throwable> reportProblems(File rootProjectBuildDir) {
