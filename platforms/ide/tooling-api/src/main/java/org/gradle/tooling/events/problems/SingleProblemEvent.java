@@ -29,8 +29,6 @@ import java.util.List;
 @Incubating
 public interface SingleProblemEvent extends ProblemEvent {
 
-    // TODO (donat) should have a single ProblemReport field
-
     /**
      * Returns the problem definition.
      *

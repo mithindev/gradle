@@ -58,7 +58,7 @@ public class ConnectionExceptionTransformer {
         }
     }
 
-    protected String connectionFailureMessage(Throwable failure) {
+    private String connectionFailureMessage(Throwable failure) {
         return messageProvider.getConnectionFailureMessage(failure);
     }
 
