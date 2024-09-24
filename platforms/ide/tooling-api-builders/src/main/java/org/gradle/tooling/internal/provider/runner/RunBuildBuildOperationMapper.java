@@ -81,23 +81,13 @@ class RunBuildBuildOperationMapper implements BuildOperationMapper<RunBuildBuild
     @Nullable
     @Override
     public InternalProgressEvent createProgressEvent(DefaultBuildBuildDescriptor descriptor, OperationProgressEvent progressEvent) {
-        descriptor.getId();
-        Object progressEventDetails = progressEvent.getDetails();
-        if (progressEventDetails instanceof BuildFailureWithProblemsProgressDetails) {
-            BuildFailureWithProblemsProgressDetails details = (BuildFailureWithProblemsProgressDetails) progressEventDetails;
-            Throwable failure = details.getBuildFailure();
-            Map<Throwable, Collection<Problem>> problemsForThrowables = details.getProblemsForThrowables();
+        Object details = progressEvent.getDetails();
+        if (details instanceof BuildFailureWithProblemsProgressDetails) {
+            BuildFailureWithProblemsProgressDetails buildFailureDetails = (BuildFailureWithProblemsProgressDetails) details;
+            Throwable failure = buildFailureDetails.getBuildFailure();
+            Map<Throwable, Collection<Problem>> problemsForThrowables = buildFailureDetails.getProblemsForThrowables();
             InternalFailure rootFailure = DefaultProblemAwareFailure.fromThrowable(failure, problemsForThrowables, ProblemsProgressEventConsumer::createDefaultProblemDetails);
-
-            return new DefaultProblemToFailureEvent(
-                new DefaultProblemToFailureDescriptor(
-                    operationIdentifierSupplier.get(),
-                    descriptor.getId()
-                ),
-                new DefaultProblemToFailureDetails(
-                    Collections.singletonList(rootFailure)
-                )
-            );
+            return new DefaultProblemToFailureEvent(new DefaultProblemToFailureDescriptor(operationIdentifierSupplier.get(),descriptor.getId()), new DefaultProblemToFailureDetails(Collections.singletonList(rootFailure)));
         }
         return null;
     }
