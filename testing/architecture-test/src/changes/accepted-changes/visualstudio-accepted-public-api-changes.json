@@ -1,0 +1,22 @@
+{
+    "acceptedApiChanges": [
+        {
+            "type": "org.gradle.ide.visualstudio.tasks.GenerateFiltersFileTask",
+            "member": "Constructor org.gradle.ide.visualstudio.tasks.GenerateFiltersFileTask()",
+            "acceptation": "Temporary",
+            "changes": []
+        },
+        {
+            "type": "org.gradle.ide.visualstudio.tasks.GenerateProjectFileTask",
+            "member": "Constructor org.gradle.ide.visualstudio.tasks.GenerateProjectFileTask()",
+            "acceptation": "Temporary",
+            "changes": []
+        },
+        {
+            "type": "org.gradle.ide.visualstudio.tasks.GenerateSolutionFileTask",
+            "member": "Constructor org.gradle.ide.visualstudio.tasks.GenerateSolutionFileTask()",
+            "acceptation": "Temporary",
+            "changes": []
+        }
+    ]
+}
