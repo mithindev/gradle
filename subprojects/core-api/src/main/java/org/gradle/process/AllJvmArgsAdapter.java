@@ -16,26 +16,77 @@
 
 package org.gradle.process;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
 import org.gradle.internal.instrumentation.api.annotations.BytecodeUpgrade;
 
+import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
+import static org.gradle.process.internal.AllJvmArgsAdapterUtil.checkDebugConfiguration;
+
 class AllJvmArgsAdapter {
+
     @BytecodeUpgrade
     static List<String> getAllJvmArgs(JavaForkOptions options) {
         return options.getAllJvmArgs().get();
     }
 
     @BytecodeUpgrade
-    @SuppressWarnings("DoNotCallSuggester")
     static void setAllJvmArgs(JavaForkOptions options, List<String> arguments) {
-        throw new NotImplementedException("Not implemented yet");
+        unsetOptions(options);
+        addExtraJvmArgs(options, arguments);
     }
 
     @BytecodeUpgrade
-    @SuppressWarnings("DoNotCallSuggester")
     static void setAllJvmArgs(JavaForkOptions options, Iterable<?> arguments) {
-        throw new NotImplementedException("Not implemented yet");
+        unsetOptions(options);
+        addExtraJvmArgs(options, arguments);
+        checkDebugConfiguration(options.getDebugOptions(), arguments);
+    }
+
+    private static void unsetOptions(JavaForkOptions options) {
+        options.setSystemProperties(Collections.emptyMap());
+        options.setJvmArgs(Collections.emptyList());
+        options.getMinHeapSize().unset();
+        options.getMaxHeapSize().unset();
+        options.getMaxHeapSize().unset();
+        options.getEnableAssertions().unset();
+        options.getDebugOptions().getEnabled().unset();
+        options.getDebugOptions().getPort().unset();
+        options.getDebugOptions().getServer().unset();
+        options.getDebugOptions().getSuspend().unset();
+        options.getDebugOptions().getHost().unset();
+    }
+
+    /**
+     * This logic is the same as JvmOptions#addExtraJvmArgs for backward compatibility
+     */
+    private static void addExtraJvmArgs(JavaForkOptions options, Iterable<?> arguments) {
+        for (Object argument : arguments) {
+            String argStr = argument.toString();
+            if (argStr.equals("-ea") || argStr.equals("-enableassertions")) {
+                options.getEnableAssertions().set(true);
+            } else if (argStr.equals("-da") || argStr.equals("-disableassertions")) {
+                options.getEnableAssertions().set(false);
+            } else if (argStr.startsWith("-Xms")) {
+                options.getMinHeapSize().set(argStr.substring("-Xms".length()));
+            } else if (argStr.startsWith("-Xmx")) {
+                options.getMaxHeapSize().set(argStr.substring("-Xmx".length()));
+            } else if (argStr.startsWith("-Xbootclasspath:")) {
+                String[] bootClasspath = StringUtils.split(argStr.substring("-Xbootclasspath:".length()), File.pathSeparatorChar);
+                options.getBootstrapClasspath().setFrom((Object[]) bootClasspath);
+            } else if (argStr.startsWith("-D")) {
+                String keyValue = argStr.substring(2);
+                int equalsIndex = keyValue.indexOf("=");
+                if (equalsIndex == -1) {
+                    options.systemProperty(keyValue, "");
+                } else {
+                    options.systemProperty(keyValue.substring(0, equalsIndex), keyValue.substring(equalsIndex + 1));
+                }
+            } else {
+                options.jvmArgs(argument);
+            }
+        }
     }
 }
