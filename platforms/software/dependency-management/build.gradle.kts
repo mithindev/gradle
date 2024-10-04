@@ -38,8 +38,8 @@ errorprone {
         "TypeParameterUnusedInFormals", // 2 occurrences
         "UndefinedEquals", // 1 occurrences
         "UnusedMethod", // 34 occurrences
-        "UnusedTypeParameter", // 1 occurrences
-        "UnusedVariable", // 6 occurrences
+//        "UnusedTypeParameter", // 1 occurrences
+//        "UnusedVariable", // 6 occurrences
     )
 }
 
