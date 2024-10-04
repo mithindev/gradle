@@ -40,6 +40,6 @@ class SwiftXCTestComponentWithApplicationIntegrationTest extends AbstractSwiftXC
 
     @Override
     protected MainWithXCTestSourceElement getComponentUnderTest() {
-        return new SwiftAppWithXCTest()
+        return new SwiftAppWithXCTest(toolChain.version)
     }
 }

@@ -29,7 +29,7 @@ class XCTestPluginOnUnsupportedPlatformIntegrationTest extends AbstractIntegrati
     }
 
     def "fails to build and run tests on unsupported platform"() {
-        def app = new SwiftAppWithXCTest()
+        def app = new SwiftAppWithXCTest(toolChain.version)
         app.writeToProject(testDirectory)
 
         when:

@@ -20,6 +20,7 @@ import com.google.common.base.Joiner;
 import org.gradle.integtests.fixtures.SourceFile;
 import org.gradle.integtests.fixtures.TestClassExecutionResult;
 import org.gradle.util.internal.CollectionUtils;
+import org.gradle.util.internal.VersionNumber;
 import org.hamcrest.CoreMatchers;
 
 import java.util.LinkedHashSet;
@@ -30,9 +31,11 @@ public abstract class XCTestSourceFileElement extends SourceFileElement implemen
     private final String testSuiteName;
     private final Set<String> imports = new LinkedHashSet<>();
     private final Set<String> testableImports = new LinkedHashSet<>();
+    private final VersionNumber compilerVersion;
 
-    public XCTestSourceFileElement(String testSuiteName) {
+    public XCTestSourceFileElement(String testSuiteName, VersionNumber compilerVersion) {
         this.testSuiteName = testSuiteName;
+        this.compilerVersion = compilerVersion;
         withImport("XCTest");
     }
 
@@ -74,10 +77,15 @@ public abstract class XCTestSourceFileElement extends SourceFileElement implemen
 
     @Override
     public SourceFile getSourceFile() {
+        // see https://github.com/swiftlang/swift/issues/75815
+        String concurrencyWorkaround = "";
+        if (compilerVersion.getMajor() >= 6) {
+            concurrencyWorkaround = ", @unchecked Sendable";
+        }
         return sourceFile("swift", getTestSuiteName() + ".swift",
                 renderImports()
                 + "\n"
-                    + "class " + getTestSuiteName() + ": XCTestCase, @unchecked Sendable {\n"
+                    + "class " + getTestSuiteName() + ": XCTestCase" + concurrencyWorkaround + " {\n"
                 + "    " + renderTestCases() + "\n"
                 + "}");
     }

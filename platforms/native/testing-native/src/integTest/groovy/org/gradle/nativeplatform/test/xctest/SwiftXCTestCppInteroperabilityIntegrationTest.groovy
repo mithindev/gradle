@@ -40,7 +40,7 @@ class SwiftXCTestCppInteroperabilityIntegrationTest extends AbstractSwiftMixedLa
     def "can depend on a #linkage.toLowerCase() c++ library"() {
         given:
         def cppGreeter = new CppGreeterFunction()
-        def lib = new SwiftLibWithCppDepXCTest(cppGreeter)
+        def lib = new SwiftLibWithCppDepXCTest(cppGreeter, swiftToolChain.version)
         createDirs("cppGreeter")
         settingsFile << """
             rootProject.name = '${lib.projectName}'
@@ -84,7 +84,7 @@ class SwiftXCTestCppInteroperabilityIntegrationTest extends AbstractSwiftMixedLa
     def "can specify a test dependency on a library with a dependency on a c++ library"() {
         def cppGreeter = new CppGreeterFunction()
         def lib = new SwiftLibWithCppDep(cppGreeter)
-        def test = new SwiftLibTest(lib, lib.greeter, lib.sum, lib.multiply)
+        def test = new SwiftLibTest(lib, lib.greeter, lib.sum, lib.multiply, swiftToolChain.version)
 
         given:
         createDirs("greeter", "cppGreeter")

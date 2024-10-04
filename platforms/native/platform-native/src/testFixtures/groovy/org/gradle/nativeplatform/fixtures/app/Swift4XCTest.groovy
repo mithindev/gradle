@@ -16,6 +16,9 @@
 
 package org.gradle.nativeplatform.fixtures.app
 
+
+import org.gradle.util.internal.VersionNumber
+
 class Swift4XCTest extends XCTestSourceElement {
     Swift4XCTest(String projectName) {
         super(projectName)
@@ -23,7 +26,7 @@ class Swift4XCTest extends XCTestSourceElement {
 
     @Override
     List<XCTestSourceFileElement> getTestSuites() {
-        return [new XCTestSourceFileElement("Swift4Test") {
+        return [new XCTestSourceFileElement("Swift4Test", VersionNumber.version(4)) {
             @Override
             List<XCTestCaseElement> getTestCases() {
                 return [testCase("testMultiLineStringContainsSpecificString",

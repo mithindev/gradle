@@ -33,8 +33,10 @@ import static org.gradle.test.preconditions.UnitTestPreconditions.HasXCTest
 @Requires(HasXCTest)
 @DoesNotSupportNonAsciiPaths(reason = "Swift sometimes fails when executed from non-ASCII directory")
 class XCTestTestFrameworkIntegrationTest extends AbstractTestFrameworkIntegrationTest {
+    private AvailableToolChains.InstalledToolChain toolChain
+
     def setup() {
-        def toolChain = AvailableToolChains.getToolChain(ToolChainRequirement.SWIFTC)
+        toolChain = AvailableToolChains.getToolChain(ToolChainRequirement.SWIFTC)
 
         File initScript = file("init.gradle") << """
 allprojects { p ->
@@ -101,14 +103,14 @@ allprojects { p ->
         }
 
         List<XCTestSourceFileElement> testSuites = [
-            new XCTestSourceFileElement("SomeTest") {
+            new XCTestSourceFileElement("SomeTest", toolChain.version) {
                 List<XCTestCaseElement> testCases = [
                     testCase(failingTestCaseName, FAILING_TEST, true),
                     passingTestCase(passingTestCaseName)
                 ]
             }.withImport(libcModuleName),
 
-            new XCTestSourceFileElement("SomeOtherTest") {
+            new XCTestSourceFileElement("SomeOtherTest", toolChain.version) {
                 List<XCTestCaseElement> testCases = [
                     passingTestCase(passingTestCaseName)
                 ]

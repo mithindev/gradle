@@ -16,13 +16,15 @@
 
 package org.gradle.nativeplatform.fixtures.app
 
+import org.gradle.util.internal.VersionNumber
+
 class SwiftAppWithXCTest extends MainWithXCTestSourceElement implements AppElement {
     final SwiftApp main = new SwiftApp()
-    final XCTestSourceElement test = new SwiftAppTest(main, main.greeter, main.sum, main.multiply)
+    final XCTestSourceElement test = new SwiftAppTest(main, main.greeter, main.sum, main.multiply, swiftVersion)
 
     String expectedOutput = main.expectedOutput
 
-    SwiftAppWithXCTest() {
-        super('app')
+    SwiftAppWithXCTest(VersionNumber swiftVersion) {
+        super('app', swiftVersion)
     }
 }

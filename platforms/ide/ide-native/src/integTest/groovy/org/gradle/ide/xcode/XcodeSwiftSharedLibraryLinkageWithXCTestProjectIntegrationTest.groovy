@@ -37,6 +37,6 @@ class XcodeSwiftSharedLibraryLinkageWithXCTestProjectIntegrationTest extends Abs
 
     @Override
     protected SwiftSourceElement getComponentUnderTest() {
-        return new SwiftLibWithXCTest()
+        return new SwiftLibWithXCTest(toolChain.version)
     }
 }

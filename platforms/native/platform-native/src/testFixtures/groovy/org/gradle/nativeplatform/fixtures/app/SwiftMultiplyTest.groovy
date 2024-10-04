@@ -16,11 +16,13 @@
 
 package org.gradle.nativeplatform.fixtures.app
 
+import org.gradle.util.internal.VersionNumber
+
 class SwiftMultiplyTest extends XCTestSourceFileElement {
     final MultiplyElement testedElement
 
-    SwiftMultiplyTest(MultiplyElement testedElement) {
-        super("MultiplyTestSuite")
+    SwiftMultiplyTest(MultiplyElement testedElement, VersionNumber swiftVersion) {
+        super("MultiplyTestSuite", swiftVersion)
         this.testedElement = testedElement
     }
 

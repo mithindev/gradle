@@ -16,6 +16,9 @@
 
 package org.gradle.nativeplatform.fixtures.app
 
+
+import org.gradle.util.internal.VersionNumber
+
 class Swift3XCTest extends XCTestSourceElement {
     Swift3XCTest(String projectName) {
         super(projectName)
@@ -23,7 +26,7 @@ class Swift3XCTest extends XCTestSourceElement {
 
     @Override
     List<XCTestSourceFileElement> getTestSuites() {
-        return [new XCTestSourceFileElement("Swift3Test") {
+        return [new XCTestSourceFileElement("Swift3Test", VersionNumber.version(3)) {
             @Override
             List<XCTestCaseElement> getTestCases() {
                 return [testCase("testOnlyOneEntryWithSpecificFirstAndLastName",

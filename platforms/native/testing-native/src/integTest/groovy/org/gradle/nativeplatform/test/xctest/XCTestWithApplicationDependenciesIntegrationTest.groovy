@@ -45,7 +45,7 @@ class XCTestWithApplicationDependenciesIntegrationTest extends AbstractNativeUni
                 var util = Util()
             }
 """
-        def testSource = new SwiftXCTestWithDepAndCustomXCTestSuite("app", "App", "XCTAssertNotNil(App().util)", [] as String[], ["Root"] as String[])
+        def testSource = new SwiftXCTestWithDepAndCustomXCTestSuite("app", "App", "XCTAssertNotNil(App().util)", [] as String[], ["Root"] as String[], toolChain.version)
         testSource.writeToProject(testDirectory)
 
         file("lib/src/main/swift/Util.swift") << """

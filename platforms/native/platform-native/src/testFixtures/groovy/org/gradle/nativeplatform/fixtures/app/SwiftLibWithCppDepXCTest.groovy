@@ -16,17 +16,19 @@
 
 package org.gradle.nativeplatform.fixtures.app
 
+import org.gradle.util.internal.VersionNumber
+
 class SwiftLibWithCppDepXCTest extends MainWithXCTestSourceElement {
     final SwiftLibWithCppDep main
     final XCTestSourceElement test
 
-    SwiftLibWithCppDepXCTest(GreeterElement cppGreeter) {
-        this("greeter", cppGreeter)
+    SwiftLibWithCppDepXCTest(GreeterElement cppGreeter, VersionNumber swiftVersion) {
+        this("greeter", cppGreeter, swiftVersion)
     }
 
-    SwiftLibWithCppDepXCTest(String projectName, GreeterElement cppGreeter) {
-        super(projectName)
+    SwiftLibWithCppDepXCTest(String projectName, GreeterElement cppGreeter, VersionNumber swiftVersion) {
+        super(projectName, swiftVersion)
         main = new SwiftLibWithCppDep(projectName, cppGreeter)
-        test = new SwiftLibTest(main, main.greeter, main.sum, main.multiply)
+        test = new SwiftLibTest(main, main.greeter, main.sum, main.multiply, swiftVersion)
     }
 }

@@ -16,12 +16,14 @@
 
 package org.gradle.nativeplatform.fixtures.app
 
+import org.gradle.util.internal.VersionNumber
+
 class Swift6WithSwift5XCTest extends MainWithXCTestSourceElement {
     final Swift6 main
     final XCTestSourceElement test
 
     Swift6WithSwift5XCTest(String projectName) {
-        super(projectName)
+        super(projectName, VersionNumber.version(5))
         this.main = new Swift6(projectName)
         this.test = new XCTestSourceElement(projectName) {
             @Override

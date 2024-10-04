@@ -37,6 +37,6 @@ class XcodeSwiftApplicationWithXCTestProjectIntegrationTest extends AbstractXcod
 
     @Override
     protected SwiftSourceElement getComponentUnderTest() {
-        return new SwiftAppWithXCTest()
+        return new SwiftAppWithXCTest(toolChain.version)
     }
 }

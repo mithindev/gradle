@@ -16,15 +16,19 @@
 
 package org.gradle.nativeplatform.fixtures.app
 
+import org.gradle.util.internal.VersionNumber
+
 class SwiftFailingXCTestBundle extends XCTestSourceElement {
-    private final XCTestSourceFileElement failingTestSuite = new XCTestSourceFileElement("FailingTestSuite") {
+    private final VersionNumber swiftVersion
+    private final XCTestSourceFileElement failingTestSuite = new XCTestSourceFileElement("FailingTestSuite", swiftVersion) {
         List<XCTestCaseElement> testCases = [
             failingTestCase("testCanFailTestCaseWithAssertion")
         ]
     }
     List<XCTestSourceFileElement> testSuites = [ failingTestSuite ]
 
-    SwiftFailingXCTestBundle() {
+    SwiftFailingXCTestBundle(VersionNumber swiftVersion) {
         super('app')
+        this.swiftVersion = swiftVersion
     }
 }

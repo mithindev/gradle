@@ -16,14 +16,19 @@
 
 package org.gradle.nativeplatform.fixtures.app
 
+import org.gradle.util.internal.VersionNumber
+
 class SwiftXCTest extends XCTestSourceElement {
-    SwiftXCTest(String projectName) {
+    protected final VersionNumber swiftVersion
+
+    SwiftXCTest(String projectName, VersionNumber swiftVersion) {
         super(projectName)
+        this.swiftVersion = swiftVersion
     }
 
     @Override
     List<XCTestSourceFileElement> getTestSuites() {
-        return [new XCTestSourceFileElement("SwiftTest") {
+        return [new XCTestSourceFileElement("SwiftTest", swiftVersion) {
             @Override
             List<XCTestCaseElement> getTestCases() {
                 return [testCase("testSucceed","XCTAssertTrue(true)")]

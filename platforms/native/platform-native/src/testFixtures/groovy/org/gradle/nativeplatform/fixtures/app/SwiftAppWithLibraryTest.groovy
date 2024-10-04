@@ -16,11 +16,19 @@
 
 package org.gradle.nativeplatform.fixtures.app
 
+import org.gradle.util.internal.VersionNumber
+
 /**
  * A Swift app composed of 2 modules: an application and a library.
  */
 class SwiftAppWithLibraryTest implements AppElement {
-    final SwiftLibWithXCTest library = new SwiftLibWithXCTest()
+    private final VersionNumber swiftVersion
+
+    SwiftAppWithLibraryTest(VersionNumber swiftVersion) {
+        this.swiftVersion = swiftVersion
+    }
+
+    final SwiftLibWithXCTest library = new SwiftLibWithXCTest(swiftVersion)
     final SwiftAppWithDep executable = new SwiftAppWithDep(library.main, library.main)
 
     @Override

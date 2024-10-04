@@ -30,7 +30,7 @@ class SwiftXCTestComponentWithoutComponentIntegrationTest extends AbstractSwiftX
 
     @Override
     protected XCTestSourceElement getComponentUnderTest() {
-        return new SwiftXCTest('project')
+        return new SwiftXCTest('project', toolChain.version)
     }
 
     @Override

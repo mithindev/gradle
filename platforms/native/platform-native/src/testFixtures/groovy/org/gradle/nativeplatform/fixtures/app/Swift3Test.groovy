@@ -16,9 +16,12 @@
 
 package org.gradle.nativeplatform.fixtures.app
 
+
+import org.gradle.util.internal.VersionNumber
+
 class Swift3Test extends XCTestSourceFileElement {
     Swift3Test() {
-        super("Swift3Test")
+        super("Swift3Test", VersionNumber.version(3))
     }
 
     @Override

@@ -54,7 +54,7 @@ apply plugin: 'xctest'
 
     def "fails when test cases fail"() {
         given:
-        def testBundle = new SwiftFailingXCTestBundle()
+        def testBundle = new SwiftFailingXCTestBundle(toolChain.version)
         settingsFile << "rootProject.name = '${testBundle.projectName}'"
         buildFile << "apply plugin: 'swift-library'"
         testBundle.writeToProject(testDirectory)
@@ -69,7 +69,7 @@ apply plugin: 'xctest'
 
     def "succeeds when test cases pass"() {
         given:
-        def lib = new SwiftLibWithXCTest()
+        def lib = new SwiftLibWithXCTest(toolChain.version)
         settingsFile << "rootProject.name = '${lib.projectName}'"
         buildFile << "apply plugin: 'swift-library'"
         lib.writeToProject(testDirectory)
@@ -84,7 +84,7 @@ apply plugin: 'xctest'
 
     def "does not execute removed test suite and case"() {
         given:
-        def testBundle = new IncrementalSwiftXCTestRemoveDiscoveryBundle()
+        def testBundle = new IncrementalSwiftXCTestRemoveDiscoveryBundle(toolChain.version)
         assert testBundle.alternateFooTestSuite.testCount < testBundle.fooTestSuite.testCount
 
         settingsFile << "rootProject.name = 'app'"
@@ -110,7 +110,7 @@ apply plugin: 'xctest'
 
     def "executes added test suite and case"() {
         given:
-        def testBundle = new IncrementalSwiftXCTestAddDiscoveryBundle()
+        def testBundle = new IncrementalSwiftXCTestAddDiscoveryBundle(toolChain.version)
         assert testBundle.alternateFooTestSuite.testCount > testBundle.fooTestSuite.testCount
 
         settingsFile << "rootProject.name = 'app'"
@@ -135,7 +135,7 @@ apply plugin: 'xctest'
 
     def "build logic can change source layout convention"() {
         given:
-        def lib = new SwiftLibWithXCTest()
+        def lib = new SwiftLibWithXCTest(toolChain.version)
         settingsFile << "rootProject.name = '${lib.projectName}'"
         buildFile << "apply plugin: 'swift-library'"
         lib.main.writeToSourceDir(file("Sources"))
@@ -164,7 +164,7 @@ apply plugin: 'xctest'
 
     def "can specify a test dependency on another library"() {
         def lib = new SwiftLib()
-        def test = new SwiftLibTest(lib, lib.greeter, lib.sum, lib.multiply)
+        def test = new SwiftLibTest(lib, lib.greeter, lib.sum, lib.multiply, toolChain.version)
 
         given:
         createDirs("greeter")
@@ -195,7 +195,7 @@ dependencies {
 
     def "does not build or run any of the tests when assemble task executes"() {
         given:
-        def testBundle = new SwiftFailingXCTestBundle()
+        def testBundle = new SwiftFailingXCTestBundle(toolChain.version)
         settingsFile << "rootProject.name = '${testBundle.projectName}'"
         testBundle.writeToProject(testDirectory)
 
@@ -236,7 +236,7 @@ apply plugin: 'swift-application'
     def "can test public and internal features of a Swift application with a single source file"() {
         given:
         def main = new SwiftSingleFileApp()
-        def test = new SwiftAppTest(main, main.greeter, main.sum, main.multiply)
+        def test = new SwiftAppTest(main, main.greeter, main.sum, main.multiply, toolChain.version)
         settingsFile << "rootProject.name = '${main.projectName}'"
         buildFile << """
 apply plugin: 'swift-application'
@@ -255,7 +255,7 @@ apply plugin: 'swift-application'
 
     def "can test features of a Swift application using a single test source file"() {
         given:
-        def app = new SwiftAppWithSingleXCTestSuite()
+        def app = new SwiftAppWithSingleXCTestSuite(toolChain.version)
         settingsFile << "rootProject.name = '${app.projectName}'"
         buildFile << """
 apply plugin: 'swift-application'
@@ -273,7 +273,7 @@ apply plugin: 'swift-application'
 
     def "can test features of a single file Swift library using a single test source file"() {
         given:
-        def lib = new SwiftSingleFileLibWithSingleXCTestSuite()
+        def lib = new SwiftSingleFileLibWithSingleXCTestSuite(toolChain.version)
 
         settingsFile << "rootProject.name = '${lib.projectName}'"
         buildFile << """
@@ -293,7 +293,7 @@ apply plugin: 'swift-library'
 
     def "relinks when main sources change in ABI compatible way"() {
         given:
-        def lib = new SwiftSingleFileLibWithSingleXCTestSuite()
+        def lib = new SwiftSingleFileLibWithSingleXCTestSuite(toolChain.version)
 
         settingsFile << "rootProject.name = '${lib.projectName}'"
         buildFile << """
@@ -317,7 +317,7 @@ apply plugin: 'swift-library'
 
     def "recompiles when main sources change in non-ABI compatible way"() {
         given:
-        def lib = new SwiftSingleFileLibWithSingleXCTestSuite()
+        def lib = new SwiftSingleFileLibWithSingleXCTestSuite(toolChain.version)
 
         settingsFile << "rootProject.name = '${lib.projectName}'"
         buildFile << """
@@ -348,12 +348,12 @@ apply plugin: 'swift-library'
         given:
         def test = new XCTestSourceElement("app") {
             List<XCTestSourceFileElement> testSuites = [
-                new XCTestSourceFileElement("NormalTestSuite") {
+                new XCTestSourceFileElement("NormalTestSuite", toolChain.version) {
                     List<XCTestCaseElement> testCases = [
                         passingTestCase("testExpectedTestName")]
                 },
 
-                new XCTestSourceFileElement("SpecialCharsTestSuite") {
+                new XCTestSourceFileElement("SpecialCharsTestSuite", toolChain.version) {
                     List<XCTestCaseElement> testCases = [
                         passingTestCase("test_name_with_leading_underscore"),
                         passingTestCase("testname_with_a_number_1234"),
@@ -363,7 +363,7 @@ apply plugin: 'swift-library'
                     ]
                 },
 
-                new XCTestSourceFileElement("UnicodeᏀᎡᎪᎠᏞᎬSuite") {
+                new XCTestSourceFileElement("UnicodeᏀᎡᎪᎠᏞᎬSuite", toolChain.version) {
                     List<XCTestCaseElement> testCases = [
                         passingTestCase("testSomething"),
                     ]
@@ -385,12 +385,12 @@ apply plugin: 'swift-library'
         given:
         def test = new XCTestSourceElement("app") {
             List<XCTestSourceFileElement> testSuites = [
-                new XCTestSourceFileElement("NormalTestSuite") {
+                new XCTestSourceFileElement("NormalTestSuite", toolChain.version) {
                     List<XCTestCaseElement> testCases = [
                         passingTestCase("testExpectedTestName")]
                 },
 
-                new XCTestSourceFileElement("SpecialCharsTestSuite") {
+                new XCTestSourceFileElement("SpecialCharsTestSuite", toolChain.version) {
                     List<XCTestCaseElement> testCases = [
                         failingTestCase("test_name_with_leading_underscore"),
                         passingTestCase("testname_with_a_number_1234"),
@@ -400,7 +400,7 @@ apply plugin: 'swift-library'
                     ]
                 },
 
-                new XCTestSourceFileElement("UnicodeᏀᎡᎪᎠᏞᎬSuite") {
+                new XCTestSourceFileElement("UnicodeᏀᎡᎪᎠᏞᎬSuite", toolChain.version) {
                     List<XCTestCaseElement> testCases = [
                         failingTestCase("testSomething"),
                     ]
@@ -446,7 +446,7 @@ apply plugin: 'swift-library'
         app.greeter.writeToProject(file('hello'))
         app.logger.writeToProject(file('log'))
 
-        def test = new SwiftXCTestWithDepAndCustomXCTestSuite('bundle', 'Main', 'XCTAssert(main() == 0)', ['App'] as String[], [] as String[])
+        def test = new SwiftXCTestWithDepAndCustomXCTestSuite('bundle', 'Main', 'XCTAssert(main() == 0)', ['App'] as String[], [] as String[], toolChain.version)
         test.writeToProject(testDirectory)
 
         when:
@@ -499,7 +499,7 @@ apply plugin: 'swift-library'
         app.greeter.writeToProject(file('Sources/Hello'))
         app.logger.writeToProject(file('Sources/Log'))
 
-        def test = new SwiftXCTestWithDepAndCustomXCTestSuite('testing', 'Main', 'XCTAssert(main() == 0)', ['App'] as String[], [] as String[])
+        def test = new SwiftXCTestWithDepAndCustomXCTestSuite('testing', 'Main', 'XCTAssert(main() == 0)', ['App'] as String[], [] as String[], toolChain.version)
         test.writeToProject(testDirectory)
 
         when:
@@ -513,7 +513,7 @@ apply plugin: 'swift-library'
 
     def "can use broken test filter [#testFilter]"() {
         given:
-        def lib = new SwiftLibWithXCTest()
+        def lib = new SwiftLibWithXCTest(toolChain.version)
         settingsFile << "rootProject.name = '${lib.projectName}'"
         buildFile << "apply plugin: 'swift-library'"
         lib.writeToProject(testDirectory)

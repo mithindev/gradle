@@ -40,6 +40,6 @@ class SwiftXCTestComponentWithSharedLibraryLinkageIntegrationTest extends Abstra
 
     @Override
     protected MainWithXCTestSourceElement getComponentUnderTest() {
-        return new SwiftLibWithXCTest()
+        return new SwiftLibWithXCTest(toolChain.version)
     }
 }

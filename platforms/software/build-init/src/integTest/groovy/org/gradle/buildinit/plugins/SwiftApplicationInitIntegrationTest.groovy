@@ -108,7 +108,7 @@ class SwiftApplicationInitIntegrationTest extends AbstractInitIntegrationSpec {
             import XCTest
             @testable import App
 
-            class HolaTests: XCTestCase, @unchecked Sendable {
+            class HolaTests: XCTestCase${concurrencyWorkaround()} {
                 public static let allTests = [
                     ("testGreeting", testGreeting),
                 ]
@@ -152,5 +152,14 @@ class SwiftApplicationInitIntegrationTest extends AbstractInitIntegrationSpec {
 
     ExecutableFixture executable(String path) {
         AvailableToolChains.getToolChain(ToolChainRequirement.SWIFTC).executable(targetDir.file(path))
+    }
+
+    // see https://github.com/swiftlang/swift/issues/75815
+    private String concurrencyWorkaround() {
+        if (swiftcToolChain.version.major >= 6) {
+            ", @unchecked Sendable"
+        } else {
+            ""
+        }
     }
 }

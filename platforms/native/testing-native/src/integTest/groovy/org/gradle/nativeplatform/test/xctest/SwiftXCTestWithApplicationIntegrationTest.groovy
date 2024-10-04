@@ -33,12 +33,12 @@ class SwiftXCTestWithApplicationIntegrationTest extends AbstractSwiftXCTestWithC
 
     @Override
     protected XCTestSourceElement getPassingTestFixture() {
-        return new SwiftAppWithXCTest()
+        return new SwiftAppWithXCTest(toolChain.version)
     }
 
     @Override
     protected XCTestSourceElement getPassingTestFixtureUsingPublicAndInternalFeatures() {
-        return new SwiftAppWithXCTest()
+        return new SwiftAppWithXCTest(toolChain.version)
     }
 
     @Override

@@ -17,24 +17,30 @@
 package org.gradle.nativeplatform.fixtures.app
 
 import org.gradle.integtests.fixtures.SourceFile
+import org.gradle.util.internal.VersionNumber
 
 class IncrementalSwiftXCTestRemoveDiscoveryBundle extends IncrementalSwiftXCTestElement  {
     String moduleName = "App"
+    VersionNumber swiftVersion
 
-    final XCTestSourceFileElement fooTestSuite = new XCTestSourceFileElement("FooTestSuite") {
+    IncrementalSwiftXCTestRemoveDiscoveryBundle(VersionNumber swiftVersion) {
+        this.swiftVersion = swiftVersion
+    }
+
+    final XCTestSourceFileElement fooTestSuite = new XCTestSourceFileElement("FooTestSuite", swiftVersion) {
         List<XCTestCaseElement> testCases = [
             passingTestCase("testA"),
             passingTestCase("testB")
         ]
     }
 
-    final XCTestSourceFileElement alternateFooTestSuite = new XCTestSourceFileElement("FooTestSuite") {
+    final XCTestSourceFileElement alternateFooTestSuite = new XCTestSourceFileElement("FooTestSuite", swiftVersion) {
         List<XCTestCaseElement> testCases = [
             passingTestCase("testA")
         ]
     }
 
-    final XCTestSourceFileElement barTestSuite = new XCTestSourceFileElement("BarTestSuite") {
+    final XCTestSourceFileElement barTestSuite = new XCTestSourceFileElement("BarTestSuite", swiftVersion) {
         List<XCTestCaseElement> testCases = [
             passingTestCase("testA"),
         ]

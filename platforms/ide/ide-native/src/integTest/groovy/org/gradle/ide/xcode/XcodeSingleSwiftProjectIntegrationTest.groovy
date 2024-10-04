@@ -181,7 +181,7 @@ class XcodeSingleSwiftProjectIntegrationTest extends AbstractXcodeIntegrationSpe
             apply plugin: 'xctest'
         """
 
-        def app = new SwiftAppWithXCTest()
+        def app = new SwiftAppWithXCTest(toolChain.version)
         app.writeToProject(testDirectory)
 
         when:
@@ -217,7 +217,7 @@ class XcodeSingleSwiftProjectIntegrationTest extends AbstractXcodeIntegrationSpe
             apply plugin: 'swift-library'
             apply plugin: 'xctest'
         """
-        def lib = new SwiftLibWithXCTest()
+        def lib = new SwiftLibWithXCTest(toolChain.version)
         lib.writeToProject(testDirectory)
 
         when:
@@ -332,7 +332,7 @@ class XcodeSingleSwiftProjectIntegrationTest extends AbstractXcodeIntegrationSpe
             apply plugin: 'swift-library'
         """
 
-        def lib = new SwiftLibWithXCTest()
+        def lib = new SwiftLibWithXCTest(toolChain.version)
         lib.writeToProject(testDirectory)
         succeeds("xcode")
 
@@ -364,7 +364,7 @@ class XcodeSingleSwiftProjectIntegrationTest extends AbstractXcodeIntegrationSpe
     @Ignore("https://github.com/gradle/gradle-native-private/issues/274")
     def "can run tests for Swift library from xcode"() {
         useXcodebuildTool()
-        def lib = new SwiftLibWithXCTest()
+        def lib = new SwiftLibWithXCTest(toolChain.version)
 
         given:
         settingsFile.text = "rootProject.name = 'greeter'"
@@ -394,7 +394,7 @@ class XcodeSingleSwiftProjectIntegrationTest extends AbstractXcodeIntegrationSpe
     @Ignore("https://github.com/gradle/gradle-native-private/issues/274")
     def "can run tests for Swift application from xcode"() {
         useXcodebuildTool()
-        def app = new SwiftAppWithXCTest()
+        def app = new SwiftAppWithXCTest(toolChain.version)
 
         given:
         settingsFile.text = """

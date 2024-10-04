@@ -16,6 +16,9 @@
 
 package org.gradle.nativeplatform.fixtures.app
 
+
+import org.gradle.util.internal.VersionNumber
+
 class Swift5XCTest extends XCTestSourceElement {
     Swift5XCTest(String projectName) {
         super(projectName)
@@ -23,7 +26,7 @@ class Swift5XCTest extends XCTestSourceElement {
 
     @Override
     List<XCTestSourceFileElement> getTestSuites() {
-        return [new XCTestSourceFileElement("Swift5Test") {
+        return [new XCTestSourceFileElement("Swift5Test", VersionNumber.version(5)) {
             @Override
             List<XCTestCaseElement> getTestCases() {
                 return [testCase("testRawString",

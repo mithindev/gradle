@@ -108,7 +108,7 @@ class SwiftLibraryInitIntegrationTest extends AbstractInitIntegrationSpec {
         subprojectDir.file("src/test/swift/HolaTests.swift") << """
             import XCTest
             @testable import Lib
-            class HolaTests: XCTestCase, @unchecked Sendable {
+            class HolaTests: XCTestCase${concurrencyWorkaround()} {
                 public static let allTests = [
                     ("testGreeting", testGreeting),
                 ]
@@ -152,5 +152,14 @@ class SwiftLibraryInitIntegrationTest extends AbstractInitIntegrationSpec {
 
     SharedLibraryFixture library(String path) {
         AvailableToolChains.getToolChain(ToolChainRequirement.SWIFTC).sharedLibrary(targetDir.file(path))
+    }
+
+    // see https://github.com/swiftlang/swift/issues/75815
+    private String concurrencyWorkaround() {
+        if (swiftcToolChain.version.major >= 6) {
+            ", @unchecked Sendable"
+        } else {
+            ""
+        }
     }
 }

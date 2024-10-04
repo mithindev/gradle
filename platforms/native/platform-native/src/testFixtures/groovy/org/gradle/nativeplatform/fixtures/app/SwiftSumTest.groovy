@@ -16,11 +16,13 @@
 
 package org.gradle.nativeplatform.fixtures.app
 
+import org.gradle.util.internal.VersionNumber
+
 class SwiftSumTest extends XCTestSourceFileElement {
     final SumElement testedElement
 
-    SwiftSumTest(SumElement testedElement) {
-        super( "SumTestSuite")
+    SwiftSumTest(SumElement testedElement, VersionNumber swiftVersion) {
+        super("SumTestSuite", swiftVersion)
         this.testedElement = testedElement
     }
 

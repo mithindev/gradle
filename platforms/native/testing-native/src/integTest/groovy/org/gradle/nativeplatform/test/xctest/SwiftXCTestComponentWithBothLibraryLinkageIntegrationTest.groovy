@@ -41,6 +41,6 @@ class SwiftXCTestComponentWithBothLibraryLinkageIntegrationTest extends Abstract
 
     @Override
     protected MainWithXCTestSourceElement getComponentUnderTest() {
-        return new SwiftLibWithXCTest()
+        return new SwiftLibWithXCTest(toolChain.version)
     }
 }

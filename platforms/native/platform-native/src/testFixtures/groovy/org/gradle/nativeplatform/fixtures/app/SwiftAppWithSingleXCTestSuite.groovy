@@ -16,13 +16,17 @@
 
 package org.gradle.nativeplatform.fixtures.app
 
+import org.gradle.util.internal.VersionNumber
+
 class SwiftAppWithSingleXCTestSuite extends MainWithXCTestSourceElement implements AppElement {
+    private final VersionNumber swiftVersion
+
     final SwiftApp main = new SwiftApp()
     final XCTestSourceElement test = new XCTestSourceElement(main.projectName) {
         @Override
         List<XCTestSourceFileElement> getTestSuites() {
-            return [new XCTestSourceFileElement("CombinedTests") {
-                final delegate = new SwiftAppTest(main, main.greeter, main.sum, main.multiply)
+            return [new XCTestSourceFileElement("CombinedTests", swiftVersion) {
+                final delegate = new SwiftAppTest(main, main.greeter, main.sum, main.multiply, swiftVersion)
 
                 @Override
                 List<XCTestCaseElement> getTestCases() {
@@ -34,7 +38,8 @@ class SwiftAppWithSingleXCTestSuite extends MainWithXCTestSourceElement implemen
 
     String expectedOutput = main.expectedOutput
 
-    SwiftAppWithSingleXCTestSuite() {
-        super('app')
+    SwiftAppWithSingleXCTestSuite(VersionNumber swiftVersion) {
+        super('app', swiftVersion)
+        this.swiftVersion = swiftVersion
     }
 }

@@ -106,7 +106,7 @@ class SwiftXCTestErrorHandlingIntegrationTest extends AbstractInstalledToolChain
     }
 
     void buildWithApplicationAndDependencies() {
-        def app = new SwiftAppWithLibrariesAndXCTest()
+        def app = new SwiftAppWithLibrariesAndXCTest(toolChain.version)
         app.test.greeterTest.withTestableImport("Hello")
         app.test.greeterTest.withTestableImport("Log")
 
@@ -139,7 +139,7 @@ class SwiftXCTestErrorHandlingIntegrationTest extends AbstractInstalledToolChain
     }
 
     void addForceUnwrappedOptionalTest() {
-        final XCTestSourceFileElement sourceFileElement = new XCTestSourceFileElement("ForceUnwrapTestSuite") {
+        final XCTestSourceFileElement sourceFileElement = new XCTestSourceFileElement("ForceUnwrapTestSuite", toolChain.version) {
             @Override
             List<XCTestCaseElement> getTestCases() {
                 return [testCase("testForceUnwrapOptional",

@@ -30,7 +30,7 @@ class SwiftXCTestWithoutComponentIntegrationTest extends AbstractSwiftXCTestInte
     protected XCTestSourceElement getPassingTestFixture() {
         return new XCTestSourceElement("app") {
             List<XCTestSourceFileElement> testSuites = [
-                new XCTestSourceFileElement("NormalTestSuite") {
+                new XCTestSourceFileElement("NormalTestSuite", toolChain.version) {
                     List<XCTestCaseElement> testCases = [
                         passingTestCase("testExpectedTestName")]
                 },

@@ -16,11 +16,13 @@
 
 package org.gradle.nativeplatform.fixtures.app
 
+import org.gradle.util.internal.VersionNumber
+
 class SwiftGreeterTest extends XCTestSourceFileElement {
     final GreeterElement testedElement
 
-    SwiftGreeterTest(GreeterElement testedElement) {
-        super("GreeterTestSuite")
+    SwiftGreeterTest(GreeterElement testedElement, VersionNumber swiftVersion) {
+        super("GreeterTestSuite", swiftVersion)
         this.testedElement = testedElement
     }
 

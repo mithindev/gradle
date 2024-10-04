@@ -16,6 +16,8 @@
 
 package org.gradle.nativeplatform.fixtures.app
 
+import org.gradle.util.internal.VersionNumber
+
 class SwiftXCTestWithDepAndCustomXCTestSuite extends SwiftXCTest {
     String testSuiteName
     String methodName
@@ -28,9 +30,10 @@ class SwiftXCTestWithDepAndCustomXCTestSuite extends SwiftXCTest {
         String classToTest,
         String assertion,
         String[] imports,
-        String[] importsTestable
+        String[] importsTestable,
+        VersionNumber swiftVersion
     ) {
-        super(projectName)
+        super(projectName, swiftVersion)
         this.testSuiteName = classToTest + "Test"
         this.methodName = "test" + classToTest
         this.assertion = assertion
@@ -40,7 +43,7 @@ class SwiftXCTestWithDepAndCustomXCTestSuite extends SwiftXCTest {
 
     @Override
     List<XCTestSourceFileElement> getTestSuites() {
-        def xcTestSourceFileElement = new XCTestSourceFileElement(testSuiteName) {
+        def xcTestSourceFileElement = new XCTestSourceFileElement(testSuiteName, swiftVersion) {
             @Override
             List<XCTestCaseElement> getTestCases() {
                 return [testCase(methodName, assertion)]

@@ -20,12 +20,16 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.gradle.integtests.fixtures.SourceFile;
 import org.gradle.test.fixtures.file.TestFile;
+import org.gradle.util.internal.VersionNumber;
 
 import java.util.List;
 
 public abstract class MainWithXCTestSourceElement extends XCTestSourceElement {
-    public MainWithXCTestSourceElement(String projectName) {
+    protected final VersionNumber swiftVersion;
+
+    public MainWithXCTestSourceElement(String projectName, VersionNumber swiftVersion) {
         super(projectName);
+        this.swiftVersion = swiftVersion;
     }
 
     public abstract SwiftSourceElement getMain();

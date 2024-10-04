@@ -150,7 +150,7 @@ class XcodeSwiftExternalSourceDependenciesIntegrationTest extends AbstractXcodeI
     @ToBeFixedForConfigurationCache
     def "adds source dependencies Swift module of test component to Xcode indexer search path"() {
         def library = new SwiftLib()
-        def test = new SwiftLibTest(library, library.greeter, library.sum, library.multiply)
+        def test = new SwiftLibTest(library, library.greeter, library.sum, library.multiply, toolChain.version)
 
         given:
         buildTestFixture.withBuildInSubDir()
@@ -204,7 +204,7 @@ class XcodeSwiftExternalSourceDependenciesIntegrationTest extends AbstractXcodeI
     @ToBeFixedForConfigurationCache
     def "does not add source dependencies Xcode project of test component to Xcode workspace"() {
         def library = new SwiftLib()
-        def test = new SwiftLibTest(library, library.greeter, library.sum, library.multiply)
+        def test = new SwiftLibTest(library, library.greeter, library.sum, library.multiply, toolChain.version)
 
         given:
         buildTestFixture.withBuildInSubDir()

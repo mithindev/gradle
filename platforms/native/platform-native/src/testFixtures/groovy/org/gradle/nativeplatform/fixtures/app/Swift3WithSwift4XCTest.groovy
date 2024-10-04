@@ -16,12 +16,14 @@
 
 package org.gradle.nativeplatform.fixtures.app
 
+import org.gradle.util.internal.VersionNumber
+
 class Swift3WithSwift4XCTest extends MainWithXCTestSourceElement {
     final Swift3 main
     final XCTestSourceElement test
 
     Swift3WithSwift4XCTest(String projectName) {
-        super(projectName)
+        super(projectName, VersionNumber.version(3))
         this.main = new Swift3(projectName)
         this.test = new XCTestSourceElement(projectName) {
             @Override

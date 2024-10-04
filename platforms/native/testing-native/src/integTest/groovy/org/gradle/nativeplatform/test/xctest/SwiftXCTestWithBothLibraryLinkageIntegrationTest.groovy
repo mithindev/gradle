@@ -32,12 +32,12 @@ class SwiftXCTestWithBothLibraryLinkageIntegrationTest extends AbstractSwiftXCTe
 
     @Override
     protected XCTestSourceElement getPassingTestFixture() {
-        return new SwiftLibWithXCTest()
+        return new SwiftLibWithXCTest(toolChain.version)
     }
 
     @Override
     protected XCTestSourceElement getPassingTestFixtureUsingPublicAndInternalFeatures() {
-        return new SwiftLibWithXCTest()
+        return new SwiftLibWithXCTest(toolChain.version)
     }
 
     @Override

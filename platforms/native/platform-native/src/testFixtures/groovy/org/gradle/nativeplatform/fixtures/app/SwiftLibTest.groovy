@@ -16,16 +16,18 @@
 
 package org.gradle.nativeplatform.fixtures.app
 
+import org.gradle.util.internal.VersionNumber
+
 class SwiftLibTest extends XCTestSourceElement {
     final XCTestSourceFileElement sumTest
     final XCTestSourceFileElement greeterTest
     final XCTestSourceFileElement multiplyTest
 
-    SwiftLibTest(SwiftSourceElement tested, GreeterElement greeter, SumElement sum, MultiplyElement multiply) {
+    SwiftLibTest(SwiftSourceElement tested, GreeterElement greeter, SumElement sum, MultiplyElement multiply, VersionNumber swiftVersion) {
         super(tested.projectName)
-        sumTest = new SwiftSumTest(sum).withImport(tested.moduleName)
-        greeterTest = new SwiftGreeterTest(greeter).withImport(tested.moduleName)
-        multiplyTest = new SwiftMultiplyTest(multiply).withTestableImport(tested.moduleName)
+        sumTest = new SwiftSumTest(sum, swiftVersion).withImport(tested.moduleName)
+        greeterTest = new SwiftGreeterTest(greeter, swiftVersion).withImport(tested.moduleName)
+        multiplyTest = new SwiftMultiplyTest(multiply, swiftVersion).withTestableImport(tested.moduleName)
     }
 
     List<XCTestSourceFileElement> getTestSuites() {

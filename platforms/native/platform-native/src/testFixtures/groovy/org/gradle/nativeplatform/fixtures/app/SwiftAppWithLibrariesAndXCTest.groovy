@@ -19,18 +19,19 @@ package org.gradle.nativeplatform.fixtures.app
 import com.google.common.collect.Iterables
 import com.google.common.collect.Lists
 import org.gradle.integtests.fixtures.SourceFile
+import org.gradle.util.internal.VersionNumber
 
 class SwiftAppWithLibrariesAndXCTest extends MainWithXCTestSourceElement implements AppElement {
     final SwiftAppWithLibraries app = new SwiftAppWithLibraries()
     final SwiftSourceElement main = app.application
     final SwiftSum sum = new SwiftSum()
     final SwiftMultiply multiply = new SwiftMultiply()
-    final XCTestSourceElement test = new SwiftAppTest(main, app.greeter, sum, multiply)
+    final XCTestSourceElement test = new SwiftAppTest(main, app.greeter, sum, multiply, swiftVersion)
 
     String expectedOutput = main.expectedOutput
 
-    SwiftAppWithLibrariesAndXCTest() {
-        super('app')
+    SwiftAppWithLibrariesAndXCTest(VersionNumber swiftVersion) {
+        super('app', swiftVersion)
     }
 
     SourceElement getGreeter() {
